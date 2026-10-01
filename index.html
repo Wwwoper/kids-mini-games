@@ -17,40 +17,69 @@
   <h1>Игры для малышей</h1>
   <p class="subtitle">Выбери игру</p>
   <nav class="menu" aria-label="Список игр">
-      <a class="menu-item" href="games/tretiy-lishniy.html">
-        <span class="menu-emoji" aria-hidden="true">🍎🍐🚌</span>
-        <span>
-          <p class="menu-title">Третий лишний</p>
-          <p class="menu-hint">Найди лишнюю картинку</p>
-        </span>
-      </a>
-      <a class="menu-item" href="games/chto-propalo.html">
-        <span class="menu-emoji" aria-hidden="true">🚀🍐🧸</span>
-        <span>
-          <p class="menu-title">Что пропало?</p>
-          <p class="menu-hint">Вспомни, чего не стало</p>
-        </span>
-      </a>
-      <a class="menu-item" href="games/chto-poyavilos.html">
-        <span class="menu-emoji" aria-hidden="true">🚀🍐🧸🐸</span>
-        <span>
-          <p class="menu-title">Что появилось?</p>
-          <p class="menu-hint">Найди новую картинку</p>
-        </span>
-      </a>
-      <a class="menu-item" href="games/kotik-i-shchenok.html">
-        <span class="menu-emoji" aria-hidden="true">🐱🐶</span>
-        <span>
-          <p class="menu-title">Котик и щенок</p>
-          <p class="menu-hint">Собери три в ряд</p>
-        </span>
-      </a>
+    <a class="menu-item" href="games/tretiy-lishniy.html">
+      <span class="menu-emoji" aria-hidden="true">🍎🍐🚌</span>
+      <span>
+        <p class="menu-title">Третий лишний</p>
+        <p class="menu-hint">Найди лишнюю картинку</p>
+      </span>
+    </a>
+    <a class="menu-item" href="games/chto-propalo.html">
+      <span class="menu-emoji" aria-hidden="true">🚀🍐🧸</span>
+      <span>
+        <p class="menu-title">Что пропало?</p>
+        <p class="menu-hint">Вспомни, чего не стало</p>
+      </span>
+    </a>
+    <a class="menu-item" href="games/chto-poyavilos.html">
+      <span class="menu-emoji" aria-hidden="true">🚀🍐🧸🐸</span>
+      <span>
+        <p class="menu-title">Что появилось?</p>
+        <p class="menu-hint">Найди новую картинку</p>
+      </span>
+    </a>
+    <a class="menu-item" href="games/kotik-i-shchenok.html">
+      <span class="menu-emoji" aria-hidden="true">🐱🐶</span>
+      <span>
+        <p class="menu-title">Котик и щенок</p>
+        <p class="menu-hint">Собери три в ряд</p>
+      </span>
+    </a>
+    <a class="menu-item" href="games/skolko.html">
+      <span class="menu-emoji" aria-hidden="true">🍎🍎🍎 3️⃣</span>
+      <span>
+        <p class="menu-title">Сколько?</p>
+        <p class="menu-hint">Посчитай и найди цифру</p>
+      </span>
+    </a>
+    <a class="menu-item" href="games/uzor.html">
+      <span class="menu-emoji" aria-hidden="true">🍎🍐🍎❓</span>
+      <span>
+        <p class="menu-title">Продолжи узор</p>
+        <p class="menu-hint">Что будет дальше?</p>
+      </span>
+    </a>
+    <a class="menu-item" href="games/posledovatelnost.html">
+      <span class="menu-emoji" aria-hidden="true">🌱➡️🌸</span>
+      <span>
+        <p class="menu-title">Что сначала, что потом?</p>
+        <p class="menu-hint">Расставь по порядку</p>
+      </span>
+    </a>
   </nav>
+  <div class="actions">
+    <a class="button secondary" href="stars.html">⭐ Мои звёздочки</a>
+    <button class="button secondary" type="button" id="adultBtn">👨‍👩‍👧 Для взрослых</button>
+  </div>
   <p class="footer">Для детей 4–6 лет · играем вместе со взрослым</p>
 </main>
 <script type="module">
+import { qs } from './shared/js/core/dom.js';
 import { registerServiceWorker } from './shared/js/core/pwa.js';
+import { mountAdult } from './shared/js/ui/adult.js';
+
 registerServiceWorker();
+mountAdult(qs('#adultBtn'));
 </script>
 </body>
 </html>

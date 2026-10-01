@@ -15,22 +15,21 @@ npx serve .
 
 Запрещено: `eval`, `new Function`, `innerHTML` для данных, внешние сетевые запросы, глобальные переменные (кроме `window.__KMG_DEBUG__`). Доступ к `localStorage`, `speechSynthesis` и `AudioContext` — только через `storage.js`, `voice.js` и `sound.js`.
 
-## Добавить карточку
+## Добавить карточку или раунд
 
-Допишите запись в `shared/js/content/cards.js`. См. `docs/CONTENT.md`.
-
-## Добавить раунд «Третий лишний»
-
-Добавьте объект в `shared/content/rounds-tretiy.json`. См. `docs/CONTENT.md`.
+Карточка — запись в `shared/js/content/cards.js`. Раунд «Третьего лишнего» — объект в `shared/content/rounds-tretiy.json`. Подробности в `docs/CONTENT.md`.
 
 ## Добавить новую игру
 
-1. Логика генератора раундов — чистые функции в `shared/js/logic/<name>.js` (без DOM, чтобы их можно было тестировать).
-2. Настройки уровней — в JSON в `shared/content/`.
-3. Страница `games/<name>.html`: подключите `base.css`, `layout.css`, `cards.css`, вставьте стандартную шапку (`.nav`, `#toggles`, `#level`, `#levelHint`, `#status`) и вызовите `mountToggles`, `mountLevelSwitch`, `registerServiceWorker`. Образец — `games/chto-poyavilos.html`.
-4. Запись в меню — ссылка в `index.html`.
-5. Файлы в `service-worker.js` (`ASSETS`) и увеличение `VERSION`.
-6. Проверки инвариантов в `tests/suite.js`.
+Образцы: `games/skolko.html`, `games/uzor.html`, `games/posledovatelnost.html`.
+
+1. **JSON.** Создайте `shared/content/<имя>.json` с блоком `levels` (`easy`, `hard`, `veryHard`, у каждого `hint`).
+2. **Логика.** Генератор раундов — чистые функции в `shared/js/logic/<имя>.js` без DOM, чтобы их можно было тестировать.
+3. **HTML.** Скопируйте шапку любой игры из `games/`: подключите `base.css`, `layout.css`, `cards.css`, добавьте блоки `#toggles`, `#level`, `#levelHint`, `#status` и пустой `<div id="suggest"></div>`. Не копируйте общий код — импортируйте его из `shared/`.
+4. **Статистика и награды.** Создайте `createGameProgress({ gameId, title, host })`. После верного ответа вызовите `progress.right()`, после ошибки — `progress.wrong('короткое описание ошибки')`, в `onChange` уровня — `progress.levelChanged()`, после создания переключателя — `progress.attach(levelSwitch)`. Адаптивная сложность, наклейки и экран взрослого заработают сами.
+5. **Меню.** Добавьте ссылку `<a class="menu-item">` в `index.html`.
+6. **Офлайн.** Добавьте новые файлы в `ASSETS` в `service-worker.js` и увеличьте `VERSION`.
+7. **Тесты.** Добавьте проверки инвариантов в `tests/suite.js` и убедитесь, что `tests/generator.html` зелёный.
 
 ## Релиз
 

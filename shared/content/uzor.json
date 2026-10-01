@@ -1,0 +1,50 @@
+{
+  "levels": {
+    "easy": {
+      "options": 3,
+      "patterns": [
+        {
+          "p": "AB",
+          "shown": 4
+        }
+      ],
+      "hint": "Две картинки чередуются. Что дальше?"
+    },
+    "hard": {
+      "options": 4,
+      "patterns": [
+        {
+          "p": "AAB",
+          "shown": 5
+        },
+        {
+          "p": "ABB",
+          "shown": 5
+        },
+        {
+          "p": "ABC",
+          "shown": 5
+        }
+      ],
+      "hint": "Узоры из двух и трёх картинок."
+    },
+    "veryHard": {
+      "options": 4,
+      "patterns": [
+        {
+          "p": "ABCD",
+          "shown": 7
+        },
+        {
+          "p": "AABB",
+          "shown": 7
+        },
+        {
+          "p": "ABAC",
+          "shown": 7
+        }
+      ],
+      "hint": "Длинные узоры из четырёх шагов."
+    }
+  }
+}

@@ -25,18 +25,19 @@
   <div class="status" id="status" role="status" aria-live="polite"></div>
   <div class="cards" id="cards" aria-label="Три карточки"></div>
   <button type="button" class="button orange next" id="next" hidden>🔄 Ещё</button>
+  <div id="suggest"></div>
 </main>
 <script type="module">
 import { POOL } from '../shared/js/content/cards.js';
 import { loadJSON, validateRound } from '../shared/js/content/loader.js';
 import { qs } from '../shared/js/core/dom.js';
-import { registerServiceWorker } from '../shared/js/core/pwa.js';
-import { mountToggles } from '../shared/js/core/settings.js';
 import { sndError, sndSuccess } from '../shared/js/core/sound.js';
 import { speak } from '../shared/js/core/voice.js';
 import { buildRound, pickRound } from '../shared/js/logic/tretiy.js';
 import { createCard } from '../shared/js/ui/card.js';
 import { mountLevelSwitch } from '../shared/js/ui/level-switch.js';
+import { bootGame } from '../shared/js/ui/boot.js';
+import { createGameProgress } from '../shared/js/ui/progress-ui.js';
 
 const HINTS = {
   easy: 'Простые категории: фрукты, животные, транспорт, игрушки.',
@@ -47,6 +48,7 @@ const HINTS = {
 const statusEl = qs('#status');
 const cardsEl = qs('#cards');
 const nextBtn = qs('#next');
+const progress = createGameProgress({ gameId: 'tretiy-lishniy', title: 'Третий лишний', host: qs('#suggest') });
 
 let rounds = null;
 let levelSwitch = null;
@@ -90,6 +92,7 @@ function onCard(item, btn) {
     statusEl.textContent = '✅ Верно! ' + current.explain;
     sndSuccess();
     speak('Верно! ' + current.explain);
+    progress.right();
     nextBtn.hidden = false;
     nextBtn.focus();
   } else {
@@ -97,13 +100,13 @@ function onCard(item, btn) {
     btn.classList.add('wrong');
     statusEl.textContent = '🤔 Попробуй ещё раз';
     speak('Это ' + item.label + '. Попробуй ещё раз');
+    progress.wrong(`лишней названа «${item.label}»`);
     setTimeout(() => btn.classList.remove('wrong'), 400);
   }
 }
 
 async function init() {
-  mountToggles(qs('#toggles'));
-  registerServiceWorker();
+  bootGame();
   try {
     const data = await loadJSON('../shared/content/rounds-tretiy.json');
     rounds = {};
@@ -124,8 +127,9 @@ async function init() {
     hintEl: qs('#levelHint'),
     hints: HINTS,
     storageKey: 'tl-level',
-    onChange: () => { firstRound = true; lastIdx = -1; newRound(); }
+    onChange: () => { firstRound = true; lastIdx = -1; progress.levelChanged(); newRound(); }
   });
+  progress.attach(levelSwitch);
   nextBtn.addEventListener('click', newRound);
   newRound();
 }

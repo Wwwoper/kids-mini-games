@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#fff6df">
+<title>Что сначала, что потом?</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48'%3E%E2%8F%B3%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../shared/img/icon-192.png">
+<link rel="stylesheet" href="../shared/css/base.css">
+<link rel="stylesheet" href="../shared/css/layout.css">
+<link rel="stylesheet" href="../shared/css/cards.css">
+</head>
+<body>
+<main class="game">
+  <nav class="nav">
+    <a class="button secondary" href="../index.html">← Все игры</a>
+    <div class="toggles" id="toggles"></div>
+  </nav>
+  <h1>⏳ Что сначала, что потом?</h1>
+  <p class="subtitle">Нажимай на картинки по порядку</p>
+  <div class="level" id="level" role="group" aria-label="Сложность"></div>
+  <p class="level-hint" id="levelHint"></p>
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+  <div class="objects" id="slots" aria-label="Порядок"></div>
+  <div class="board compact" id="pile" aria-label="Картинки"></div>
+  <button type="button" class="button orange next" id="next" hidden>🔄 Ещё</button>
+  <div id="suggest"></div>
+</main>
+<script type="module">
+import { loadJSON } from '../shared/js/content/loader.js';
+import { qs } from '../shared/js/core/dom.js';
+import { sndError, sndMove, sndSuccess } from '../shared/js/core/sound.js';
+import { speak } from '../shared/js/core/voice.js';
+import { makeRound, validateSequence } from '../shared/js/logic/sequence.js';
+import { createCard } from '../shared/js/ui/card.js';
+import { mountLevelSwitch } from '../shared/js/ui/level-switch.js';
+import { bootGame } from '../shared/js/ui/boot.js';
+import { createGameProgress } from '../shared/js/ui/progress-ui.js';
+
+const statusEl = qs('#status');
+const slotsEl = qs('#slots');
+const pileEl = qs('#pile');
+const nextBtn = qs('#next');
+const progress = createGameProgress({ gameId: 'posledovatelnost', title: 'Что сначала, что потом?', host: qs('#suggest') });
+
+let levels = null;
+let sequences = [];
+let levelSwitch = null;
+let state = null;
+let firstRound = true;
+
+const cfg = () => levels[levelSwitch.get()];
+const asItem = (step) => ({ id: step.emoji, emoji: step.emoji, label: step.label });
+
+function newRound() {
+  nextBtn.hidden = true;
+  const round = makeRound(sequences, cfg());
+  if (!round) {
+    statusEl.textContent = 'Нет подходящих заданий. Позовите взрослого.';
+    slotsEl.replaceChildren();
+    pileEl.replaceChildren();
+    return;
+  }
+  state = { ...round, placed: 0, used: new Set() };
+  pileEl.dataset.cols = String(round.steps.length === 3 ? 3 : 2);
+  render();
+  const ask = 'Что было сначала?';
+  speak(firstRound ? ask + ' Нажимай на картинки по порядку' : ask);
+  firstRound = false;
+}
+
+function render() {
+  const n = state.steps.length;
+  slotsEl.replaceChildren(...state.steps.map((step, i) => {
+    if (i < state.placed) {
+      const filled = createCard(asItem(step));
+      filled.classList.add('reveal');
+      return filled;
+    }
+    const empty = createCard(null, { covered: true });
+    empty.classList.add('slot');
+    empty.textContent = String(i + 1);
+    empty.setAttribute('aria-label', `место ${i + 1} из ${n}`);
+    return empty;
+  }));
+
+  pileEl.replaceChildren(...state.order.map((step) => {
+    if (state.used.has(step)) {
+      const gone = createCard(null, { covered: true });
+      gone.setAttribute('aria-hidden', 'true');
+      return gone;
+    }
+    return createCard(asItem(step), { tag: 'button', onClick: (item, btn) => pick(step, btn) });
+  }));
+
+  if (state.placed < n) statusEl.textContent = state.placed === 0 ? 'Что было сначала?' : 'Что было дальше?';
+}
+
+function pick(step, btn) {
+  if (state.placed >= state.steps.length) return;
+  if (step === state.steps[state.placed]) {
+    state.placed += 1;
+    state.used.add(step);
+    const done = state.placed === state.steps.length;
+    render();
+    if (done) {
+      const words = state.steps.map((s) => s.label);
+      statusEl.textContent = '✅ Верно! ' + words.join(' → ');
+      sndSuccess();
+      speak('Верно! ' + words.join(', '));
+      progress.right();
+      nextBtn.hidden = false;
+      nextBtn.focus();
+    } else {
+      sndMove();
+      speak('Что было дальше?');
+      progress.answer(true, null, { adapt: false });
+    }
+  } else {
+    sndError();
+    btn.classList.add('wrong');
+    statusEl.textContent = '🤔 Подумай ещё раз';
+    speak(step.label + '. Подумай ещё раз');
+    progress.wrong(`${state.title}: «${step.label}» не по порядку`);
+    setTimeout(() => btn.classList.remove('wrong'), 400);
+  }
+}
+
+async function init() {
+  bootGame();
+  try {
+    const data = await loadJSON('../shared/content/posledovatelnost.json');
+    levels = data.levels;
+    sequences = (data.sequences || []).filter((seq) => {
+      const errors = validateSequence(seq);
+      if (errors.length) console.warn('Последовательность пропущена:', errors.join('; '), seq);
+      return errors.length === 0;
+    });
+    if (!levels || !levels.easy || !sequences.length) throw new Error('Некорректный posledovatelnost.json');
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = 'Не удалось загрузить задания. Позовите взрослого.';
+    return;
+  }
+  levelSwitch = mountLevelSwitch({
+    container: qs('#level'),
+    hintEl: qs('#levelHint'),
+    hints: Object.fromEntries(Object.entries(levels).map(([id, c]) => [id, c.hint])),
+    storageKey: 'ps-level',
+    onChange: () => { firstRound = true; progress.levelChanged(); newRound(); }
+  });
+  progress.attach(levelSwitch);
+  nextBtn.addEventListener('click', newRound);
+  newRound();
+}
+
+init();
+</script>
+</body>
+</html>

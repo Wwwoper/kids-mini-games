@@ -50,6 +50,13 @@ button:disabled { cursor: default; }
 }
 .opt:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 0 #cfe3bf, inset 0 -3px #e6f2da; }
 .opt.win { background: var(--gold); box-shadow: 0 4px 0 var(--gold-edge), inset 0 -3px #fff6cf; animation: pop .35s; }
+.opt.group {
+  font-size: clamp(16px, 5.2vw, 26px);
+  line-height: 1.15;
+  padding: 6px;
+  overflow-wrap: anywhere;
+  align-content: center;
+}
 
 /* Клетки крестиков-ноликов */
 .cell {

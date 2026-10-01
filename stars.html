@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#fff6df">
+<title>Мои звёздочки</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48'%3E%E2%AD%90%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="shared/img/icon-192.png">
+<link rel="stylesheet" href="shared/css/base.css">
+<link rel="stylesheet" href="shared/css/layout.css">
+<link rel="stylesheet" href="shared/css/cards.css">
+</head>
+<body>
+<main class="game">
+  <nav class="nav">
+    <a class="button secondary" href="index.html">← Все игры</a>
+  </nav>
+  <h1>⭐ Мои звёздочки</h1>
+  <p class="subtitle">За каждые пять правильных раундов — наклейка</p>
+  <div class="stars-total" id="total" aria-live="polite">0</div>
+  <p id="todayLine"></p>
+  <div class="sticker-grid" id="stickers" aria-label="Мои наклейки"></div>
+  <ul class="days" id="days"></ul>
+</main>
+<script type="module">
+import { createEl, qs } from './shared/js/core/dom.js';
+import { loadProgress } from './shared/js/core/progress.js';
+import { registerServiceWorker } from './shared/js/core/pwa.js';
+import { dateKey, totalStars } from './shared/js/logic/progress-model.js';
+
+registerServiceWorker();
+const state = loadProgress();
+const today = state.days[dateKey()] || { stars: 0, rounds: 0 };
+qs('#total').textContent = String(totalStars(state));
+qs('#todayLine').textContent = today.stars > 0
+  ? `Сегодня наклеек: ${today.stars}. Так держать!`
+  : 'Сегодня пока нет наклеек. Поиграй — и они появятся!';
+
+const stickers = state.stickers.slice(-60);
+qs('#stickers').replaceChildren(...stickers.map((s) => createEl('span', { text: s.e, attrs: { role: 'img', 'aria-label': 'наклейка' } })));
+
+const dateLabel = (key) => new Date(key + 'T00:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+const dayKeys = Object.keys(state.days).sort().reverse().slice(0, 14);
+qs('#days').replaceChildren(...dayKeys.map((key) => {
+  const d = state.days[key];
+  return createEl('li', {},
+    createEl('span', { text: dateLabel(key) }),
+    createEl('span', { text: `⭐ ${d.stars} · раундов: ${d.rounds}` }));
+}));
+</script>
+</body>
+</html>

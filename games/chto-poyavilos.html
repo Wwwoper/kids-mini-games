@@ -26,24 +26,26 @@
   <div class="board" id="board" data-cols="3" aria-label="Карточки"></div>
   <button type="button" class="button" id="remember" style="margin-top:16px" hidden>👀 Запомнил!</button>
   <button type="button" class="button orange next" id="next" hidden>🔄 Ещё</button>
+  <div id="suggest"></div>
 </main>
 <script type="module">
 import { POOL_LIST } from '../shared/js/content/cards.js';
 import { loadJSON } from '../shared/js/content/loader.js';
 import { qs } from '../shared/js/core/dom.js';
-import { registerServiceWorker } from '../shared/js/core/pwa.js';
-import { mountToggles } from '../shared/js/core/settings.js';
 import { sndError, sndMove, sndSuccess } from '../shared/js/core/sound.js';
 import { speak } from '../shared/js/core/voice.js';
 import { makeRound } from '../shared/js/logic/appeared.js';
 import { createCard } from '../shared/js/ui/card.js';
 import { mountLevelSwitch } from '../shared/js/ui/level-switch.js';
+import { bootGame } from '../shared/js/ui/boot.js';
+import { createGameProgress } from '../shared/js/ui/progress-ui.js';
 
 const DELAY = 600;
 const boardEl = qs('#board');
 const statusEl = qs('#status');
 const rememberBtn = qs('#remember');
 const nextBtn = qs('#next');
+const progress = createGameProgress({ gameId: 'chto-poyavilos', title: 'Что появилось?', host: qs('#suggest') });
 
 let levels = null;
 let levelSwitch = null;
@@ -110,6 +112,7 @@ function choose(item, btn) {
     sndSuccess();
     statusEl.textContent = '✅ Верно! Новая картинка — ' + item.label;
     speak('Верно! Новая картинка — ' + item.label);
+    progress.right();
     render();
     nextBtn.hidden = false;
     nextBtn.focus();
@@ -118,13 +121,13 @@ function choose(item, btn) {
     btn.classList.add('wrong');
     statusEl.textContent = '🤔 Посмотри ещё раз';
     speak(item.label + '. Посмотри ещё раз');
+    progress.wrong(`новой названа «${item.label}»`);
     setTimeout(() => btn.classList.remove('wrong'), 400);
   }
 }
 
 async function init() {
-  mountToggles(qs('#toggles'));
-  registerServiceWorker();
+  bootGame();
   try {
     levels = (await loadJSON('../shared/content/levels-memory.json'))['chto-poyavilos'];
     if (!levels || !levels.easy) throw new Error('Нет уровней для chto-poyavilos');
@@ -138,8 +141,9 @@ async function init() {
     hintEl: qs('#levelHint'),
     hints: Object.fromEntries(Object.entries(levels).map(([id, c]) => [id, c.hint])),
     storageKey: 'cpo-level',
-    onChange: () => { firstRound = true; newRound(); }
+    onChange: () => { firstRound = true; progress.levelChanged(); newRound(); }
   });
+  progress.attach(levelSwitch);
   rememberBtn.addEventListener('click', () => {
     if (state.phase !== 'memorize' || locked) return;
     state.phase = 'transition';

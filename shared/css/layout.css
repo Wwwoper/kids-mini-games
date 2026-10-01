@@ -16,6 +16,7 @@
 .board[data-cols="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .board[data-cols="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .board[data-cols="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.board.compact { width: min(100%, 300px); }
 
 .board.ttt {
   width: min(100%, 355px);
@@ -24,6 +25,12 @@
   grid-template-rows: repeat(3, minmax(0, 1fr));
   gap: 9px;
 }
+
+/* Ряд картинок: сколько?, узор, места последовательности */
+.objects { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0 auto 14px; width: min(100%, 440px); }
+.objects .card { width: clamp(52px, 16vw, 76px); font-size: clamp(30px, 10vw, 52px); border-radius: 16px; }
+.objects .card.digit { width: clamp(96px, 30vw, 140px); font-size: clamp(56px, 20vw, 96px); }
+.objects .card.slot { font-size: clamp(26px, 8vw, 40px); }
 
 /* Блок вариантов ответа («Что пропало?») */
 .answers {
@@ -61,9 +68,10 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
-  width: 100%;
-  margin: 0;
+  width: min(100%, 440px);
+  margin: 0 auto;
 }
+.answers .options { width: 100%; }
 
 @keyframes answersIn {
   0% { transform: translateY(12px) scale(.96); opacity: 0; }
@@ -76,7 +84,6 @@
 }
 
 /* Меню игр */
-.game.menu-page { text-align: center; }
 .menu-page h1 { font-size: clamp(26px, 6vw, 36px); }
 .menu-page .subtitle { font-size: 16px; margin: 7px 0 18px; }
 .menu { display: grid; gap: 12px; }
@@ -101,8 +108,71 @@
 .menu-emoji { font-size: clamp(30px, 8vw, 42px); line-height: 1; }
 .menu-title { font-size: clamp(18px, 4.5vw, 22px); font-weight: 800; margin: 0; }
 .menu-hint { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
-.menu-item:nth-child(1) { background: #ffe9ef; box-shadow: inset 0 -5px #f8d3df; }
-.menu-item:nth-child(2) { background: #e6f6ff; box-shadow: inset 0 -5px #cce8f4; }
-.menu-item:nth-child(3) { background: #fff5d4; box-shadow: inset 0 -5px #f5e3a5; }
-.menu-item:nth-child(4) { background: #e8f6e1; box-shadow: inset 0 -5px #cae9bb; }
+.menu-item:nth-child(4n+1) { background: #ffe9ef; box-shadow: inset 0 -5px #f8d3df; }
+.menu-item:nth-child(4n+2) { background: #e6f6ff; box-shadow: inset 0 -5px #cce8f4; }
+.menu-item:nth-child(4n+3) { background: #fff5d4; box-shadow: inset 0 -5px #f5e3a5; }
+.menu-item:nth-child(4n+4) { background: #e8f6e1; box-shadow: inset 0 -5px #cae9bb; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
+.actions .button { font-size: 16px; }
 .footer { margin: 18px 0 0; font-size: 13px; color: var(--muted); }
+
+/* Подсказка о смене уровня (адаптивная сложность) */
+.suggest {
+  margin: 14px auto 0;
+  max-width: 440px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: #eef3ff;
+  color: var(--ink);
+  font-size: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+.suggest .button { font-size: 15px; padding: 7px 12px; }
+
+/* Окна: награда и экран взрослого */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(41, 64, 92, .55);
+}
+.modal-box {
+  width: min(100%, 520px);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 22px;
+  border-radius: 24px;
+  background: var(--paper);
+  box-shadow: 0 18px 50px #00000040;
+  text-align: left;
+}
+.modal-box h2 { margin: 0 0 10px; }
+.modal-box h3 { margin: 16px 0 6px; font-size: 17px; }
+.modal-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.gate-q { font-size: 22px; font-weight: 800; }
+.gate-input { font: inherit; font-size: 22px; width: 120px; padding: 8px 10px; border: 3px solid var(--soft); border-radius: 12px; }
+.gate-msg { min-height: 22px; color: #a21c1c; margin: 6px 0 0; }
+.stats { width: 100%; border-collapse: collapse; font-size: 15px; }
+.stats th, .stats td { padding: 6px 8px; border-bottom: 1px solid var(--soft); text-align: left; }
+.adaptive-label { display: block; margin-top: 16px; }
+
+.reward-box { text-align: center; }
+.sticker { font-size: 110px; line-height: 1.1; animation: stickerIn .8s cubic-bezier(.2, 1.4, .4, 1); }
+@keyframes stickerIn {
+  0% { transform: scale(.2) rotate(-40deg); opacity: 0; }
+  70% { transform: scale(1.15) rotate(8deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* Страница «Мои звёздочки» */
+.stars-total { font-size: 56px; font-weight: 900; margin: 6px 0; }
+.sticker-grid { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; font-size: 36px; margin: 10px 0 16px; }
+.days { list-style: none; padding: 0; margin: 0; text-align: left; }
+.days li { padding: 8px 4px; border-bottom: 1px solid var(--soft); display: flex; justify-content: space-between; gap: 10px; }

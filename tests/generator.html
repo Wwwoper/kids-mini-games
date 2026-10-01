@@ -38,9 +38,12 @@ function el(tag, text, className) {
 }
 
 try {
-  const [rounds, memory] = await Promise.all([
+  const [rounds, memory, skolko, uzor, posledovatelnost] = await Promise.all([
     loadJSON('../shared/content/rounds-tretiy.json'),
-    loadJSON('../shared/content/levels-memory.json')
+    loadJSON('../shared/content/levels-memory.json'),
+    loadJSON('../shared/content/skolko.json'),
+    loadJSON('../shared/content/uzor.json'),
+    loadJSON('../shared/content/posledovatelnost.json')
   ]);
   let cleanForTTS = null;
   try {
@@ -48,7 +51,7 @@ try {
   } catch (e) {
     console.warn('voice.js не загружен', e);
   }
-  const results = runSuite({ rounds, memory, cleanForTTS });
+  const results = runSuite({ rounds, memory, skolko, uzor, posledovatelnost, cleanForTTS });
   const groups = new Map();
   results.forEach((r) => {
     if (!groups.has(r.group)) groups.set(r.group, []);

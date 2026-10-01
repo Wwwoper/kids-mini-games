@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#fff6df">
+<title>Продолжи узор</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48'%3E%F0%9F%A7%A9%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../shared/img/icon-192.png">
+<link rel="stylesheet" href="../shared/css/base.css">
+<link rel="stylesheet" href="../shared/css/layout.css">
+<link rel="stylesheet" href="../shared/css/cards.css">
+</head>
+<body>
+<main class="game">
+  <nav class="nav">
+    <a class="button secondary" href="../index.html">← Все игры</a>
+    <div class="toggles" id="toggles"></div>
+  </nav>
+  <h1>🧩 Продолжи узор</h1>
+  <p class="subtitle">Какая картинка будет следующей?</p>
+  <div class="level" id="level" role="group" aria-label="Сложность"></div>
+  <p class="level-hint" id="levelHint"></p>
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+  <div class="objects" id="pattern" aria-label="Узор"></div>
+  <div class="options" id="options" aria-label="Варианты ответа"></div>
+  <button type="button" class="button orange next" id="next" hidden>🔄 Ещё</button>
+  <div id="suggest"></div>
+</main>
+<script type="module">
+import { POOL_LIST } from '../shared/js/content/cards.js';
+import { loadJSON } from '../shared/js/content/loader.js';
+import { qs } from '../shared/js/core/dom.js';
+import { sndError, sndSuccess } from '../shared/js/core/sound.js';
+import { speak } from '../shared/js/core/voice.js';
+import { makeRound } from '../shared/js/logic/pattern.js';
+import { createCard } from '../shared/js/ui/card.js';
+import { mountLevelSwitch } from '../shared/js/ui/level-switch.js';
+import { bootGame } from '../shared/js/ui/boot.js';
+import { createGameProgress } from '../shared/js/ui/progress-ui.js';
+
+const statusEl = qs('#status');
+const patternEl = qs('#pattern');
+const optionsEl = qs('#options');
+const nextBtn = qs('#next');
+const progress = createGameProgress({ gameId: 'uzor', title: 'Продолжи узор', host: qs('#suggest') });
+
+let levels = null;
+let levelSwitch = null;
+let state = null;
+let slot = null;
+let locked = false;
+let firstRound = true;
+
+const cfg = () => levels[levelSwitch.get()];
+
+function newRound() {
+  locked = false;
+  nextBtn.hidden = true;
+  const round = makeRound(POOL_LIST, cfg());
+  if (!round) {
+    statusEl.textContent = 'Не получилось создать задание. Позовите взрослого.';
+    return;
+  }
+  state = round;
+  slot = createCard(null, { covered: true });
+  slot.textContent = '❓';
+  slot.setAttribute('aria-label', 'пропуск в узоре');
+  patternEl.replaceChildren(...round.shown.map((item) => createCard(item)), slot);
+
+  optionsEl.style.gridTemplateColumns = `repeat(${round.options.length},minmax(0,1fr))`;
+  optionsEl.replaceChildren(...round.options.map((opt) =>
+    createCard(opt, { tag: 'button', base: 'opt', onClick: choose })));
+
+  statusEl.textContent = 'Что будет дальше в узоре?';
+  speak(firstRound ? 'Посмотри на узор. Что будет дальше?' : 'Что будет дальше?');
+  firstRound = false;
+}
+
+function choose(opt, btn) {
+  if (locked) return;
+  if (opt.id === state.answer.id) {
+    locked = true;
+    optionsEl.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+    btn.classList.add('win');
+    const revealed = createCard(state.answer);
+    revealed.classList.add('reveal');
+    slot.replaceWith(revealed);
+    statusEl.textContent = '✅ Верно! Узор продолжается так';
+    sndSuccess();
+    speak('Верно! ' + opt.label);
+    progress.right();
+    nextBtn.hidden = false;
+    nextBtn.focus();
+  } else {
+    sndError();
+    btn.classList.add('wrong');
+    statusEl.textContent = '🤔 Посмотри на узор ещё раз';
+    speak(opt.label + '. Посмотри на узор ещё раз');
+    progress.wrong(`узор ${state.pattern}: выбрано «${opt.label}»`);
+    setTimeout(() => btn.classList.remove('wrong'), 400);
+  }
+}
+
+async function init() {
+  bootGame();
+  try {
+    levels = (await loadJSON('../shared/content/uzor.json')).levels;
+    if (!levels || !levels.easy) throw new Error('Некорректный uzor.json');
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = 'Не удалось загрузить задания. Позовите взрослого.';
+    return;
+  }
+  levelSwitch = mountLevelSwitch({
+    container: qs('#level'),
+    hintEl: qs('#levelHint'),
+    hints: Object.fromEntries(Object.entries(levels).map(([id, c]) => [id, c.hint])),
+    storageKey: 'uz-level',
+    onChange: () => { firstRound = true; progress.levelChanged(); newRound(); }
+  });
+  progress.attach(levelSwitch);
+  nextBtn.addEventListener('click', newRound);
+  newRound();
+}
+
+init();
+</script>
+</body>
+</html>

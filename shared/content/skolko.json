@@ -1,0 +1,35 @@
+{
+  "items": [
+    "apple",
+    "star",
+    "ball",
+    "bee",
+    "flower",
+    "strawberry",
+    "cat",
+    "car"
+  ],
+  "levels": {
+    "easy": {
+      "min": 1,
+      "max": 3,
+      "options": 3,
+      "mode": "count-to-digit",
+      "hint": "Считаем от 1 до 3. Найди нужную цифру."
+    },
+    "hard": {
+      "min": 1,
+      "max": 6,
+      "options": 4,
+      "mode": "count-to-digit",
+      "hint": "Считаем до 6. Найди нужную цифру."
+    },
+    "veryHard": {
+      "min": 1,
+      "max": 9,
+      "options": 4,
+      "mode": "mixed",
+      "hint": "До 9. То найди цифру, то найди столько же картинок."
+    }
+  }
+}

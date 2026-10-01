@@ -15,18 +15,19 @@ export function mountLevelSwitch({ container, hintEl = null, hints, storageKey, 
   if (!ids.includes(level)) level = 'easy';
 
   const buttons = new Map();
+  const choose = (id) => {
+    level = id;
+    writeSetting(storageKey, id);
+    refresh();
+    onChange(id);
+  };
   ids.forEach((id) => {
     const btn = createEl('button', {
       className: 'button secondary',
       text: LEVEL_LABELS[id],
       attrs: { type: 'button', 'aria-pressed': 'false' }
     });
-    btn.addEventListener('click', () => {
-      level = id;
-      writeSetting(storageKey, id);
-      refresh();
-      onChange(id);
-    });
+    btn.addEventListener('click', () => choose(id));
     buttons.set(id, btn);
   });
   container.replaceChildren(...buttons.values());
@@ -38,7 +39,11 @@ export function mountLevelSwitch({ container, hintEl = null, hints, storageKey, 
   refresh();
 
   return {
+    ids,
     get: () => level,
-    refresh
+    refresh,
+    set(id) {
+      if (ids.includes(id)) choose(id);
+    }
   };
 }

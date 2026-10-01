@@ -3,7 +3,14 @@ import { validateRound } from '../shared/js/content/loader.js';
 import { buildRound } from '../shared/js/logic/tretiy.js';
 import { makeRound as makeMissing } from '../shared/js/logic/missing.js';
 import { makeRound as makeAppeared } from '../shared/js/logic/appeared.js';
+import { makeRound as makeCount } from '../shared/js/logic/count.js';
+import { makeRound as makePattern } from '../shared/js/logic/pattern.js';
+import { makeRound as makeSequence, validateSequence } from '../shared/js/logic/sequence.js';
 import { LINES, result, bestMinimaxMove, chooseComputerMove } from '../shared/js/logic/tictactoe.js';
+import {
+  emptyProgress, normalize, recordAnswer, recordRound, recordStar, clearRecent,
+  evaluate, percent, topErrors, totalStars, RECENT_MAX
+} from '../shared/js/logic/progress-model.js';
 
 const REPEATS = 300;
 const LEVEL_IDS = ['easy', 'hard', 'veryHard'];
@@ -27,8 +34,8 @@ function randomGame(oFirst) {
   }
 }
 
-// rounds — содержимое rounds-tretiy.json, memory — содержимое levels-memory.json.
-export function runSuite({ rounds, memory, cleanForTTS = null }) {
+// data — содержимое JSON-файлов: rounds, memory, skolko, uzor, posledovatelnost.
+export function runSuite({ rounds, memory, skolko, uzor, posledovatelnost, cleanForTTS = null }) {
   const tests = [];
   const test = (group, name, fn) => tests.push({ group, name, fn });
 
@@ -90,8 +97,7 @@ export function runSuite({ rounds, memory, cleanForTTS = null }) {
   });
 
   // ---- Что пропало?
-  const missingLevels = memory['chto-propalo'];
-  Object.entries(missingLevels).forEach(([lv, cfg]) => {
+  Object.entries(memory['chto-propalo']).forEach(([lv, cfg]) => {
     test('Что пропало?', `уровень ${lv}: инварианты за ${REPEATS} раундов`, () => {
       for (let k = 0; k < REPEATS; k++) {
         const r = makeMissing(POOL_LIST, cfg);
@@ -116,8 +122,7 @@ export function runSuite({ rounds, memory, cleanForTTS = null }) {
   });
 
   // ---- Что появилось?
-  const appearedLevels = memory['chto-poyavilos'];
-  Object.entries(appearedLevels).forEach(([lv, cfg]) => {
+  Object.entries(memory['chto-poyavilos']).forEach(([lv, cfg]) => {
     test('Что появилось?', `уровень ${lv}: инварианты за ${REPEATS} раундов`, () => {
       for (let k = 0; k < REPEATS; k++) {
         const r = makeAppeared(POOL_LIST, cfg);
@@ -156,12 +161,11 @@ export function runSuite({ rounds, memory, cleanForTTS = null }) {
     for (let k = 0; k < REPEATS; k++) assert(randomGame(true) !== 'X', 'котик выиграл у минимакса');
   });
   test('Котик и щенок', 'chooseComputerMove всегда возвращает свободную клетку', () => {
-    ['easy', 'hard', 'veryHard'].forEach((lv) => {
+    LEVEL_IDS.forEach((lv) => {
       for (let k = 0; k < 100; k++) {
         const b = Array(9).fill('').map(() => (Math.random() < 0.3 ? 'X' : ''));
         b[4] = 'X';
-        const free = b.some((v) => !v);
-        if (!free || result(b)) continue;
+        if (!b.some((v) => !v) || result(b)) continue;
         const pick = chooseComputerMove(b, memory['tic-tac-toe'][lv]);
         assert(Number.isInteger(pick) && !b[pick], `${lv}: занятая клетка ${pick}`);
       }
@@ -173,7 +177,134 @@ export function runSuite({ rounds, memory, cleanForTTS = null }) {
     assert(chooseComputerMove(['X', 'X', '', '', 'O', '', '', '', ''], cfg) === 2, 'не заблокировал');
   });
 
-  const results = tests.map(({ group, name, fn }) => {
+  // ---- Сколько?
+  const countItems = skolko.items.map((id) => (POOL[id] ? { id, ...POOL[id] } : null));
+  test('Сколько?', 'все предметы из skolko.json есть в POOL', () => {
+    assert(countItems.every(Boolean), 'неизвестный id предмета');
+  });
+  Object.entries(skolko.levels).forEach(([lv, cfg]) => {
+    test('Сколько?', `уровень ${lv}: инварианты за ${REPEATS} раундов`, () => {
+      const modes = new Set();
+      for (let k = 0; k < REPEATS; k++) {
+        const r = makeCount(countItems, cfg);
+        assert(r, 'раунд не создан');
+        modes.add(r.mode);
+        assert(r.count >= cfg.min && r.count <= cfg.max, 'count вне диапазона');
+        assert(r.options.length === cfg.options, 'неверное число вариантов');
+        assert(r.options.filter((n) => n === r.count).length === 1, 'верный вариант не ровно один раз');
+        assert(new Set(r.options).size === r.options.length, 'варианты повторяются');
+        assert(r.options.every((n) => n >= cfg.min && n <= cfg.max), 'вариант вне диапазона');
+      }
+      if (cfg.mode === 'mixed') assert(modes.size === 2, 'mixed не даёт оба режима');
+    });
+  });
+
+  // ---- Продолжи узор
+  Object.entries(uzor.levels).forEach(([lv, cfg]) => {
+    test('Продолжи узор', `уровень ${lv}: конфигурация узоров корректна`, () => {
+      cfg.patterns.forEach(({ p, shown }) => {
+        assert(shown >= p.length, `${p}: shown меньше периода`);
+        const letters = [...new Set(p)];
+        assert(letters.every((l) => p.slice(0, shown).includes(l) || [...Array(shown)].some((_, i) => p[i % p.length] === l)), `${p}: не все символы показаны`);
+      });
+    });
+    test('Продолжи узор', `уровень ${lv}: инварианты за ${REPEATS} раундов`, () => {
+      for (let k = 0; k < REPEATS; k++) {
+        const r = makePattern(POOL_LIST, cfg);
+        assert(r, 'раунд не создан');
+        const def = cfg.patterns.find((x) => x.p === r.pattern);
+        assert(def && r.shown.length === def.shown, 'неверная длина узора');
+        const letters = [...new Set(r.pattern)];
+        const map = {};
+        r.shown.forEach((card, i) => {
+          const l = r.pattern[i % r.pattern.length];
+          if (map[l]) assert(map[l] === card.id, 'символ узора не постоянен');
+          else map[l] = card.id;
+        });
+        assert(new Set(Object.values(map)).size === letters.length, 'разные буквы получили одну картинку');
+        assert(r.answer.id === map[r.pattern[def.shown % r.pattern.length]], 'неверный ответ');
+        const ids = r.options.map((c) => c.id);
+        assert(ids.filter((id) => id === r.answer.id).length === 1, 'ответ не ровно один раз');
+        assert(new Set(ids).size === ids.length && ids.length === cfg.options, 'варианты некорректны');
+      }
+    });
+  });
+
+  // ---- Что сначала, что потом?
+  test('Что сначала, что потом?', 'все последовательности проходят validateSequence', () => {
+    const bad = posledovatelnost.sequences.map((s) => validateSequence(s).join('; ')).filter(Boolean);
+    assert(bad.length === 0, bad.join(' | '));
+  });
+  test('Что сначала, что потом?', 'validateSequence находит ошибки', () => {
+    assert(validateSequence({ title: '', steps: [] }).length > 0, 'пустая');
+    assert(validateSequence({ title: 'x', steps: [{ emoji: 'a', label: 'b' }, { emoji: 'a', label: 'c' }] }).length > 0, 'повтор emoji');
+  });
+  Object.entries(posledovatelnost.levels).forEach(([lv, cfg]) => {
+    test('Что сначала, что потом?', `уровень ${lv}: инварианты за ${REPEATS} раундов`, () => {
+      for (let k = 0; k < REPEATS; k++) {
+        const r = makeSequence(posledovatelnost.sequences, cfg);
+        assert(r, 'раунд не создан');
+        assert(r.steps.length === cfg.steps && r.order.length === cfg.steps, 'неверное число шагов');
+        assert(r.order.every((s) => r.steps.includes(s)) && new Set(r.order).size === cfg.steps, 'order не перестановка');
+        assert(r.order.some((s, i) => s !== r.steps[i]), 'порядок совпал с правильным');
+        const seq = posledovatelnost.sequences.find((s) => s.title === r.title);
+        const start = seq.steps.indexOf(r.steps[0]);
+        assert(r.steps.every((s, i) => seq.steps[start + i] === s), 'шаги не подряд из оригинала');
+      }
+    });
+  });
+
+  // ---- Фаза 4: прогресс и адаптивная сложность
+  test('Адаптивная сложность', 'три верных подряд предлагают следующий уровень', () => {
+    assert(evaluate([0, 1, 1, 1], 0, 3) === 'up', 'нет up');
+    assert(evaluate([1, 1], 0, 3) === null, 'рано');
+    assert(evaluate([1, 1, 1], 2, 3) === null, 'выше последнего уровня');
+  });
+  test('Адаптивная сложность', 'две ошибки подряд предлагают предыдущий уровень', () => {
+    assert(evaluate([1, 0, 0], 1, 3) === 'down', 'нет down');
+    assert(evaluate([0, 1, 0], 1, 3) === null, 'ошибки не подряд');
+    assert(evaluate([0, 0], 0, 3) === null, 'ниже первого уровня');
+  });
+  test('Адаптивная сложность', 'хранится не больше пяти последних ответов на игру', () => {
+    const s = emptyProgress();
+    for (let i = 0; i < 12; i++) recordAnswer(s, 'g', i % 2 === 0, 'x', '2026-10-01', 'Игра');
+    assert(s.recent.g.length === RECENT_MAX, `длина ${s.recent.g.length}`);
+    clearRecent(s, 'g');
+    assert(s.recent.g.length === 0, 'не очистилось');
+  });
+  test('Прогресс', 'счётчики по дням, проценты, раунды и наклейки', () => {
+    const s = emptyProgress();
+    recordAnswer(s, 'a', true, null, '2026-10-01', 'A');
+    recordAnswer(s, 'a', false, 'ошибка 1', '2026-10-01', 'A');
+    recordAnswer(s, 'a', false, 'ошибка 1', '2026-10-02', 'A');
+    recordAnswer(s, 'a', true, null, '2026-10-02', 'A');
+    recordRound(s, 'a', '2026-10-02', 'A');
+    recordStar(s, '2026-10-02', '🦄');
+    assert(percent(s, 'a') === 50, 'процент');
+    assert(percent(s, 'zzz') === null, 'нет данных');
+    assert(s.days['2026-10-02'].rounds === 1 && s.days['2026-10-02'].stars === 1, 'счётчики дня');
+    assert(totalStars(s) === 1 && s.stickers.length === 1, 'наклейки');
+  });
+  test('Прогресс', 'топ-3 ошибок отсортирован по частоте', () => {
+    const s = emptyProgress();
+    [['a', 'один', 1], ['a', 'два', 3], ['b', 'три', 2], ['b', 'четыре', 5]].forEach(([g, label, n]) => {
+      for (let i = 0; i < n; i++) recordAnswer(s, g, false, label, '2026-10-01', g);
+    });
+    const top = topErrors(s, 3).map((e) => e.label);
+    assert(top.join() === 'четыре,два,три', top.join());
+  });
+  test('Прогресс', 'normalize переживает испорченные данные', () => {
+    [null, 'строка', 42, [], { days: 5, games: 'x', recent: [], stickers: 'y' },
+      { days: { bad: { rounds: -5 } }, games: { 'Плохой Ключ': {} }, stickers: [{ d: 'x', e: 1 }] },
+      JSON.parse('{"games":{"__proto__":{"answers":1}},"days":{"2026-10-01":{"rounds":"много"}}}')
+    ].forEach((raw) => {
+      const s = normalize(raw);
+      assert(s.adaptive === true && typeof s.days === 'object' && Array.isArray(s.stickers), 'структура нарушена');
+      assert(Object.values(s.days).every((d) => Number.isInteger(d.rounds) && d.rounds >= 0), 'мусор в days');
+    });
+  });
+
+  return tests.map(({ group, name, fn }) => {
     try {
       fn();
       return { group, name, ok: true };
@@ -181,5 +312,4 @@ export function runSuite({ rounds, memory, cleanForTTS = null }) {
       return { group, name, ok: false, message: e.message };
     }
   });
-  return results;
 }

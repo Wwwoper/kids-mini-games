@@ -31,18 +31,19 @@
   </section>
   <button type="button" class="button" id="remember" style="margin-top:16px" hidden>👀 Запомнил!</button>
   <button type="button" class="button orange next" id="next" hidden>🔄 Ещё</button>
+  <div id="suggest"></div>
 </main>
 <script type="module">
 import { POOL_LIST, getCard } from '../shared/js/content/cards.js';
 import { loadJSON } from '../shared/js/content/loader.js';
 import { qs } from '../shared/js/core/dom.js';
-import { registerServiceWorker } from '../shared/js/core/pwa.js';
-import { mountToggles } from '../shared/js/core/settings.js';
 import { sndError, sndHint, sndSuccess } from '../shared/js/core/sound.js';
 import { speak } from '../shared/js/core/voice.js';
 import { makeRound } from '../shared/js/logic/missing.js';
 import { createCard } from '../shared/js/ui/card.js';
 import { mountLevelSwitch } from '../shared/js/ui/level-switch.js';
+import { bootGame } from '../shared/js/ui/boot.js';
+import { createGameProgress } from '../shared/js/ui/progress-ui.js';
 
 const boardEl = qs('#board');
 const optionsEl = qs('#options');
@@ -51,6 +52,7 @@ const pointer = qs('#pointer');
 const statusEl = qs('#status');
 const rememberBtn = qs('#remember');
 const nextBtn = qs('#next');
+const progress = createGameProgress({ gameId: 'chto-propalo', title: 'Что пропало?', host: qs('#suggest') });
 
 let levels = null;
 let levelSwitch = null;
@@ -128,6 +130,7 @@ function choose(opt, btn) {
     sndSuccess();
     statusEl.textContent = '✅ Верно! Это ' + opt.label;
     speak('Верно! Это ' + opt.label);
+    progress.right();
     render();
     nextBtn.hidden = false;
     nextBtn.focus();
@@ -136,13 +139,13 @@ function choose(opt, btn) {
     btn.classList.add('wrong');
     statusEl.textContent = '🤔 Посмотри ещё раз';
     speak(opt.label + '. Посмотри ещё раз');
+    progress.wrong(`выбрано «${opt.label}»`);
     setTimeout(() => btn.classList.remove('wrong'), 400);
   }
 }
 
 async function init() {
-  mountToggles(qs('#toggles'));
-  registerServiceWorker();
+  bootGame();
   try {
     levels = (await loadJSON('../shared/content/levels-memory.json'))['chto-propalo'];
     if (!levels || !levels.easy) throw new Error('Нет уровней для chto-propalo');
@@ -156,8 +159,9 @@ async function init() {
     hintEl: qs('#levelHint'),
     hints: Object.fromEntries(Object.entries(levels).map(([id, c]) => [id, c.hint])),
     storageKey: 'cp-level',
-    onChange: () => { firstRound = true; newRound(); }
+    onChange: () => { firstRound = true; progress.levelChanged(); newRound(); }
   });
+  progress.attach(levelSwitch);
   rememberBtn.addEventListener('click', () => {
     if (state.phase !== 'memorize') return;
     state.phase = 'answer';

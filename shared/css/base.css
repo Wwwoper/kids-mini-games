@@ -69,7 +69,8 @@ button { cursor: pointer; }
 .button.orange { background: var(--orange); color: var(--orange-ink); }
 
 button:focus-visible,
-a:focus-visible {
+a:focus-visible,
+input:focus-visible {
   outline: 4px solid var(--focus);
   outline-offset: 3px;
 }
