@@ -1,0 +1,108 @@
+/* Сетки игровых полей */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 auto;
+  width: min(100%, 420px);
+}
+
+.board {
+  display: grid;
+  gap: 10px;
+  margin: 0 auto;
+  width: min(100%, 420px);
+}
+.board[data-cols="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.board[data-cols="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.board[data-cols="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+
+.board.ttt {
+  width: min(100%, 355px);
+  aspect-ratio: 1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+/* Блок вариантов ответа («Что пропало?») */
+.answers {
+  margin: 20px auto 0;
+  width: min(100%, 440px);
+  padding: 14px 12px 16px;
+  border: 3px dashed #7bc47f;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #f1fbe9 0%, #e3f6d8 100%);
+  box-shadow: 0 6px 0 #c6e3b6, inset 0 2px 0 rgba(255, 255, 255, .7);
+  animation: answersIn .45s ease-out;
+}
+.answers-title {
+  margin: 0 0 12px;
+  font-size: clamp(17px, 4.6vw, 21px);
+  font-weight: 900;
+  color: #2f6b3a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1.15;
+}
+.answers-title .arrow { font-size: 1.15em; display: inline-block; animation: bounce 1.1s ease-in-out infinite; }
+.pointer {
+  margin: 14px auto 0;
+  display: flex;
+  justify-content: center;
+  color: #3f8a49;
+  font-size: 34px;
+  line-height: 1;
+  animation: bounce 1.1s ease-in-out infinite;
+}
+.options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+}
+
+@keyframes answersIn {
+  0% { transform: translateY(12px) scale(.96); opacity: 0; }
+  60% { transform: translateY(-3px) scale(1.02); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+/* Меню игр */
+.game.menu-page { text-align: center; }
+.menu-page h1 { font-size: clamp(26px, 6vw, 36px); }
+.menu-page .subtitle { font-size: 16px; margin: 7px 0 18px; }
+.menu { display: grid; gap: 12px; }
+.menu-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 22px;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .1s;
+}
+.menu-item:hover,
+.menu-item:focus-visible {
+  transform: translateY(-2px);
+  outline: 4px solid var(--focus);
+  outline-offset: 3px;
+}
+.menu-emoji { font-size: clamp(30px, 8vw, 42px); line-height: 1; }
+.menu-title { font-size: clamp(18px, 4.5vw, 22px); font-weight: 800; margin: 0; }
+.menu-hint { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
+.menu-item:nth-child(1) { background: #ffe9ef; box-shadow: inset 0 -5px #f8d3df; }
+.menu-item:nth-child(2) { background: #e6f6ff; box-shadow: inset 0 -5px #cce8f4; }
+.menu-item:nth-child(3) { background: #fff5d4; box-shadow: inset 0 -5px #f5e3a5; }
+.menu-item:nth-child(4) { background: #e8f6e1; box-shadow: inset 0 -5px #cae9bb; }
+.footer { margin: 18px 0 0; font-size: 13px; color: var(--muted); }

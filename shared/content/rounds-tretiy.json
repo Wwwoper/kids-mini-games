@@ -1,0 +1,424 @@
+{
+  "easy": [
+    {
+      "cards": [
+        "apple",
+        "pear"
+      ],
+      "odd": "bus",
+      "explain": "Яблоко и груша — фрукты, а автобус — транспорт."
+    },
+    {
+      "cards": [
+        "cat",
+        "dog"
+      ],
+      "odd": "apple",
+      "explain": "Кошка и собака — животные, а яблоко — фрукт."
+    },
+    {
+      "cards": [
+        "bus",
+        "car"
+      ],
+      "odd": "banana",
+      "explain": "Автобус и машина — транспорт, а банан — фрукт."
+    },
+    {
+      "cards": [
+        "ball",
+        "dice"
+      ],
+      "odd": "cloud",
+      "explain": "Мяч и кубик — игрушки, а облако — на небе."
+    },
+    {
+      "cards": [
+        "sun",
+        "moon"
+      ],
+      "odd": "pizza",
+      "explain": "Солнце и луна — на небе, а пицца — еда."
+    },
+    {
+      "cards": [
+        "banana",
+        "orange"
+      ],
+      "odd": "cat",
+      "explain": "Банан и апельсин — фрукты, а кошка — животное."
+    },
+    {
+      "cards": [
+        "train",
+        "plane"
+      ],
+      "odd": "cake",
+      "explain": "Поезд и самолёт — транспорт, а торт — еда."
+    },
+    {
+      "cards": [
+        "bear",
+        "fox"
+      ],
+      "odd": "ball",
+      "explain": "Медведь и лиса — животные, а мяч — игрушка."
+    },
+    {
+      "cards": [
+        "strawberry",
+        "grape"
+      ],
+      "odd": "train",
+      "explain": "Клубника и виноград — фрукты, а поезд — транспорт."
+    },
+    {
+      "cards": [
+        "dice",
+        "teddy"
+      ],
+      "odd": "apple",
+      "explain": "Кубик и мишка — игрушки, а яблоко — фрукт."
+    },
+    {
+      "cards": [
+        "star",
+        "cloud"
+      ],
+      "odd": "car",
+      "explain": "Звезда и облако — на небе, а машина — транспорт."
+    },
+    {
+      "cards": [
+        "bread",
+        "cheese"
+      ],
+      "odd": "rabbit",
+      "explain": "Хлеб и сыр — еда, а заяц — животное."
+    },
+    {
+      "cards": [
+        "icecream",
+        "cake"
+      ],
+      "odd": "ship",
+      "explain": "Мороженое и торт — сладости, а корабль — транспорт."
+    },
+    {
+      "cards": [
+        "elephant",
+        "rabbit"
+      ],
+      "odd": "orange",
+      "explain": "Слон и заяц — животные, а апельсин — фрукт."
+    },
+    {
+      "cards": [
+        "tree",
+        "flower"
+      ],
+      "odd": "dice",
+      "explain": "Дерево и цветок — природа, а кубик — игрушка."
+    },
+    {
+      "cards": [
+        "bike",
+        "ship"
+      ],
+      "odd": "pear",
+      "explain": "Велосипед и корабль — транспорт, а груша — фрукт."
+    },
+    {
+      "cards": [
+        "robot",
+        "doll"
+      ],
+      "odd": "moon",
+      "explain": "Робот и кукла — игрушки, а луна — на небе."
+    },
+    {
+      "cards": [
+        "pizza",
+        "egg"
+      ],
+      "odd": "plane",
+      "explain": "Пицца и яйцо — еда, а самолёт — транспорт."
+    },
+    {
+      "cards": [
+        "star",
+        "sun"
+      ],
+      "odd": "bus",
+      "explain": "Звезда и солнце — на небе, а автобус — транспорт."
+    },
+    {
+      "cards": [
+        "tree",
+        "flower"
+      ],
+      "odd": "pizza",
+      "explain": "Дерево и цветок — природа, а пицца — еда."
+    }
+  ],
+  "hard": [
+    {
+      "cards": [
+        "cat",
+        "dog"
+      ],
+      "odd": "fox",
+      "explain": "Кошка и собака — домашние животные, а лиса — дикая."
+    },
+    {
+      "cards": [
+        "apple",
+        "banana"
+      ],
+      "odd": "carrot",
+      "explain": "Яблоко и банан — фрукты, а морковь — овощ."
+    },
+    {
+      "cards": [
+        "shirt",
+        "pants"
+      ],
+      "odd": "ball",
+      "explain": "Рубашка и штаны — одежда, а мяч — игрушка."
+    },
+    {
+      "cards": [
+        "cup",
+        "plate"
+      ],
+      "odd": "shoe",
+      "explain": "Чашка и тарелка — посуда, а ботинок — обувь."
+    },
+    {
+      "cards": [
+        "bee",
+        "butterfly"
+      ],
+      "odd": "mushroom",
+      "explain": "Пчела и бабочка — насекомые, а гриб — нет."
+    },
+    {
+      "cards": [
+        "apple",
+        "orange"
+      ],
+      "odd": "mushroom",
+      "explain": "Яблоко и апельсин — фрукты, а гриб — нет."
+    },
+    {
+      "cards": [
+        "tree",
+        "flower"
+      ],
+      "odd": "car",
+      "explain": "Дерево и цветок — растения, а машина — транспорт."
+    },
+    {
+      "cards": [
+        "carrot",
+        "mushroom"
+      ],
+      "odd": "strawberry",
+      "explain": "Морковь и гриб — не фрукты, а клубника — фрукт."
+    },
+    {
+      "cards": [
+        "cat",
+        "rabbit"
+      ],
+      "odd": "bee",
+      "explain": "Кошка и заяц — звери, а пчела — насекомое."
+    },
+    {
+      "cards": [
+        "shoe",
+        "cup"
+      ],
+      "odd": "teddy",
+      "explain": "Ботинок и чашка — не игрушки, а мишка — игрушка."
+    },
+    {
+      "cards": [
+        "train",
+        "bus"
+      ],
+      "odd": "shoe",
+      "explain": "Поезд и автобус — транспорт, а ботинок — обувь."
+    },
+    {
+      "cards": [
+        "mushroom",
+        "carrot"
+      ],
+      "odd": "pizza",
+      "explain": "Гриб и морковь — не выпечка, а пицца — еда."
+    }
+  ],
+  "veryHard": [
+    {
+      "cards": [
+        "apple",
+        "banana"
+      ],
+      "odd": "ball",
+      "explain": "Яблоко и банан — съедобные, а мяч — нет."
+    },
+    {
+      "cards": [
+        "bread",
+        "cheese"
+      ],
+      "odd": "train",
+      "explain": "Хлеб и сыр — еда, а поезд — транспорт."
+    },
+    {
+      "cards": [
+        "icecream",
+        "cake"
+      ],
+      "odd": "teddy",
+      "explain": "Мороженое и торт — сладости, а мишка — игрушка."
+    },
+    {
+      "cards": [
+        "pizza",
+        "egg"
+      ],
+      "odd": "cup",
+      "explain": "Пицца и яйцо — еда, а чашка — посуда."
+    },
+    {
+      "cards": [
+        "cat",
+        "fox"
+      ],
+      "odd": "sun",
+      "explain": "Кошка и лиса — живые, а солнце — нет."
+    },
+    {
+      "cards": [
+        "bee",
+        "butterfly"
+      ],
+      "odd": "star",
+      "explain": "Пчела и бабочка — живые, а звезда — нет."
+    },
+    {
+      "cards": [
+        "tree",
+        "flower"
+      ],
+      "odd": "robot",
+      "explain": "Дерево и цветок — живые, а робот — нет."
+    },
+    {
+      "cards": [
+        "rabbit",
+        "dog"
+      ],
+      "odd": "bus",
+      "explain": "Заяц и собака — живые, а автобус — нет."
+    },
+    {
+      "cards": [
+        "ball",
+        "orange"
+      ],
+      "odd": "dice",
+      "explain": "Мяч и апельсин — круглые, а кубик — нет."
+    },
+    {
+      "cards": [
+        "sun",
+        "apple"
+      ],
+      "odd": "cup",
+      "explain": "Солнце и яблоко — круглой формы, а чашка — нет."
+    },
+    {
+      "cards": [
+        "moon",
+        "plate"
+      ],
+      "odd": "bread",
+      "explain": "Луна и тарелка — круглые, а хлеб — нет."
+    },
+    {
+      "cards": [
+        "egg",
+        "grape"
+      ],
+      "odd": "pizza",
+      "explain": "Яйцо и виноград — округлые, а пицца — нет."
+    },
+    {
+      "cards": [
+        "plane",
+        "bee"
+      ],
+      "odd": "ship",
+      "explain": "Самолёт и пчела — летают, а корабль — нет."
+    },
+    {
+      "cards": [
+        "butterfly",
+        "plane"
+      ],
+      "odd": "car",
+      "explain": "Бабочка и самолёт — летают, а машина — нет."
+    },
+    {
+      "cards": [
+        "bee",
+        "butterfly"
+      ],
+      "odd": "train",
+      "explain": "Пчела и бабочка — летают, а поезд — нет."
+    },
+    {
+      "cards": [
+        "tree",
+        "flower"
+      ],
+      "odd": "cup",
+      "explain": "Дерево и цветок — растут, а чашка — нет."
+    },
+    {
+      "cards": [
+        "apple",
+        "carrot"
+      ],
+      "odd": "shoe",
+      "explain": "Яблоко и морковь растут, а ботинок — нет."
+    },
+    {
+      "cards": [
+        "tree",
+        "mushroom"
+      ],
+      "odd": "ball",
+      "explain": "Дерево и гриб растут, а мяч — нет."
+    },
+    {
+      "cards": [
+        "shirt",
+        "pants"
+      ],
+      "odd": "plate",
+      "explain": "Рубашку и штаны носят, а тарелку — нет."
+    },
+    {
+      "cards": [
+        "shoe",
+        "pants"
+      ],
+      "odd": "moon",
+      "explain": "Ботинки и штаны носят, а луна — на небе."
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#fff6df">
+<title>Третий лишний</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48'%3E%F0%9F%8D%8E%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../shared/img/icon-192.png">
+<link rel="stylesheet" href="../shared/css/base.css">
+<link rel="stylesheet" href="../shared/css/layout.css">
+<link rel="stylesheet" href="../shared/css/cards.css">
+</head>
+<body>
+<main class="game">
+  <nav class="nav">
+    <a class="button secondary" href="../index.html">← Все игры</a>
+    <div class="toggles" id="toggles"></div>
+  </nav>
+  <h1>🍎 Третий лишний 🚌</h1>
+  <p class="subtitle">Найди картинку, которая не подходит к другим</p>
+  <div class="level" id="level" role="group" aria-label="Сложность"></div>
+  <p class="level-hint" id="levelHint"></p>
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+  <div class="cards" id="cards" aria-label="Три карточки"></div>
+  <button type="button" class="button orange next" id="next" hidden>🔄 Ещё</button>
+</main>
+<script type="module">
+import { POOL } from '../shared/js/content/cards.js';
+import { loadJSON, validateRound } from '../shared/js/content/loader.js';
+import { qs } from '../shared/js/core/dom.js';
+import { registerServiceWorker } from '../shared/js/core/pwa.js';
+import { mountToggles } from '../shared/js/core/settings.js';
+import { sndError, sndSuccess } from '../shared/js/core/sound.js';
+import { speak } from '../shared/js/core/voice.js';
+import { buildRound, pickRound } from '../shared/js/logic/tretiy.js';
+import { createCard } from '../shared/js/ui/card.js';
+import { mountLevelSwitch } from '../shared/js/ui/level-switch.js';
+
+const HINTS = {
+  easy: 'Простые категории: фрукты, животные, транспорт, игрушки.',
+  hard: 'Тонкие категории: домашние и дикие, овощи и фрукты, одежда и посуда.',
+  veryHard: 'Абстрактные признаки: съедобное и несъедобное, живое и неживое, летает и не летает.'
+};
+
+const statusEl = qs('#status');
+const cardsEl = qs('#cards');
+const nextBtn = qs('#next');
+
+let rounds = null;
+let levelSwitch = null;
+let current = null;
+let answered = false;
+let lastIdx = -1;
+let firstRound = true;
+
+function showAdultMessage(text) {
+  statusEl.textContent = text;
+  cardsEl.replaceChildren();
+  nextBtn.hidden = true;
+}
+
+function newRound() {
+  answered = false;
+  nextBtn.hidden = true;
+  const pool = rounds[levelSwitch.get()];
+  if (!pool.length) {
+    showAdultMessage('На этом уровне пока нет заданий. Позовите взрослого.');
+    return;
+  }
+  const picked = pickRound(pool, lastIdx);
+  lastIdx = picked.idx;
+  current = buildRound(picked.round);
+  statusEl.textContent = 'Какая картинка лишняя?';
+  cardsEl.replaceChildren(...current.ids.map((id) =>
+    createCard({ id, ...POOL[id] }, { tag: 'button', onClick: onCard })));
+  if (firstRound) {
+    speak('Найди лишнюю картинку');
+    firstRound = false;
+  }
+}
+
+function onCard(item, btn) {
+  if (answered) return;
+  if (item.id === current.oddId) {
+    answered = true;
+    btn.classList.add('win');
+    cardsEl.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+    statusEl.textContent = '✅ Верно! ' + current.explain;
+    sndSuccess();
+    speak('Верно! ' + current.explain);
+    nextBtn.hidden = false;
+    nextBtn.focus();
+  } else {
+    sndError();
+    btn.classList.add('wrong');
+    statusEl.textContent = '🤔 Попробуй ещё раз';
+    speak('Это ' + item.label + '. Попробуй ещё раз');
+    setTimeout(() => btn.classList.remove('wrong'), 400);
+  }
+}
+
+async function init() {
+  mountToggles(qs('#toggles'));
+  registerServiceWorker();
+  try {
+    const data = await loadJSON('../shared/content/rounds-tretiy.json');
+    rounds = {};
+    for (const level of Object.keys(HINTS)) {
+      rounds[level] = (data[level] || []).filter((round) => {
+        const errors = validateRound(round, POOL);
+        if (errors.length) console.warn('Раунд пропущен:', errors.join('; '), round);
+        return errors.length === 0;
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    showAdultMessage('Не удалось загрузить задания. Позовите взрослого.');
+    return;
+  }
+  levelSwitch = mountLevelSwitch({
+    container: qs('#level'),
+    hintEl: qs('#levelHint'),
+    hints: HINTS,
+    storageKey: 'tl-level',
+    onChange: () => { firstRound = true; lastIdx = -1; newRound(); }
+  });
+  nextBtn.addEventListener('click', newRound);
+  newRound();
+}
+
+init();
+</script>
+</body>
+</html>

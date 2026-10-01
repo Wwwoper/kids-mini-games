@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#fff6df">
+<title>Что пропало?</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48'%3E%F0%9F%94%8D%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../shared/img/icon-192.png">
+<link rel="stylesheet" href="../shared/css/base.css">
+<link rel="stylesheet" href="../shared/css/layout.css">
+<link rel="stylesheet" href="../shared/css/cards.css">
+</head>
+<body>
+<main class="game">
+  <nav class="nav">
+    <a class="button secondary" href="../index.html">← Все игры</a>
+    <div class="toggles" id="toggles"></div>
+  </nav>
+  <h1>🔍 Что пропало?</h1>
+  <p class="subtitle">Посмотри, запомни и нажми «Запомнил!»</p>
+  <div class="level" id="level" role="group" aria-label="Сложность"></div>
+  <p class="level-hint" id="levelHint"></p>
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+  <div class="board" id="board" data-cols="3" aria-label="Карточки для запоминания"></div>
+  <div class="pointer" id="pointer" hidden aria-hidden="true">⬇</div>
+  <section class="answers" id="answersBlock" hidden aria-labelledby="answersTitle">
+    <p class="answers-title" id="answersTitle"><span class="arrow" aria-hidden="true">👇</span> Что пропало? Выбери здесь</p>
+    <div class="options" id="options" aria-label="Варианты ответа"></div>
+  </section>
+  <button type="button" class="button" id="remember" style="margin-top:16px" hidden>👀 Запомнил!</button>
+  <button type="button" class="button orange next" id="next" hidden>🔄 Ещё</button>
+</main>
+<script type="module">
+import { POOL_LIST, getCard } from '../shared/js/content/cards.js';
+import { loadJSON } from '../shared/js/content/loader.js';
+import { qs } from '../shared/js/core/dom.js';
+import { registerServiceWorker } from '../shared/js/core/pwa.js';
+import { mountToggles } from '../shared/js/core/settings.js';
+import { sndError, sndHint, sndSuccess } from '../shared/js/core/sound.js';
+import { speak } from '../shared/js/core/voice.js';
+import { makeRound } from '../shared/js/logic/missing.js';
+import { createCard } from '../shared/js/ui/card.js';
+import { mountLevelSwitch } from '../shared/js/ui/level-switch.js';
+
+const boardEl = qs('#board');
+const optionsEl = qs('#options');
+const answersBlk = qs('#answersBlock');
+const pointer = qs('#pointer');
+const statusEl = qs('#status');
+const rememberBtn = qs('#remember');
+const nextBtn = qs('#next');
+
+let levels = null;
+let levelSwitch = null;
+let state = null;
+let locked = false;
+let firstRound = true;
+
+const cfg = () => levels[levelSwitch.get()];
+
+function newRound() {
+  locked = false;
+  const round = makeRound(POOL_LIST, cfg());
+  if (!round) {
+    statusEl.textContent = 'Мало карточек, позовите взрослого';
+    return;
+  }
+  state = { ...round, phase: 'memorize' };
+  render();
+  speak(firstRound ? 'Запомни картинки. Нажми кнопку Запомнил, когда готов' : 'Запомни картинки');
+  firstRound = false;
+}
+
+function render() {
+  const L = cfg();
+  const inMemo = state.phase === 'memorize';
+  boardEl.dataset.cols = String(inMemo ? L.memCols : L.ansCols);
+
+  if (inMemo) {
+    boardEl.replaceChildren(...state.S.map((item) => createCard(item)));
+    optionsEl.replaceChildren();
+    answersBlk.hidden = true;
+    pointer.hidden = true;
+    rememberBtn.hidden = false;
+    nextBtn.hidden = true;
+    statusEl.textContent = 'Запомни картинки';
+    return;
+  }
+
+  boardEl.replaceChildren(...state.displayIds.map((id) => {
+    if (id === null) return createCard(null, { covered: true });
+    const el = createCard(getCard(id));
+    if (state.phase === 'success' && id === state.answer.id) el.classList.add('reveal');
+    return el;
+  }));
+
+  answersBlk.hidden = true;
+  void answersBlk.offsetWidth;
+  answersBlk.hidden = false;
+  pointer.hidden = false;
+  optionsEl.style.gridTemplateColumns = `repeat(${L.optCols},minmax(0,1fr))`;
+  optionsEl.replaceChildren(...state.options.map((opt) => {
+    const btn = createCard(opt, { tag: 'button', base: 'opt', onClick: choose });
+    if (state.phase === 'success') {
+      btn.disabled = true;
+      if (opt.id === state.answer.id) btn.classList.add('win');
+    }
+    return btn;
+  }));
+  rememberBtn.hidden = true;
+  if (state.phase === 'answer') statusEl.textContent = 'Что пропало?';
+}
+
+function choose(opt, btn) {
+  if (locked || state.phase !== 'answer') return;
+  if (opt.id === state.answer.id) {
+    locked = true;
+    if (state.displayIds.includes(null)) {
+      state.displayIds = state.displayIds.map((id) => (id === null ? state.answer.id : id));
+    } else {
+      const pos = Math.floor(Math.random() * (state.displayIds.length + 1));
+      state.displayIds = state.displayIds.slice();
+      state.displayIds.splice(pos, 0, state.answer.id);
+    }
+    state.phase = 'success';
+    sndSuccess();
+    statusEl.textContent = '✅ Верно! Это ' + opt.label;
+    speak('Верно! Это ' + opt.label);
+    render();
+    nextBtn.hidden = false;
+    nextBtn.focus();
+  } else {
+    sndError();
+    btn.classList.add('wrong');
+    statusEl.textContent = '🤔 Посмотри ещё раз';
+    speak(opt.label + '. Посмотри ещё раз');
+    setTimeout(() => btn.classList.remove('wrong'), 400);
+  }
+}
+
+async function init() {
+  mountToggles(qs('#toggles'));
+  registerServiceWorker();
+  try {
+    levels = (await loadJSON('../shared/content/levels-memory.json'))['chto-propalo'];
+    if (!levels || !levels.easy) throw new Error('Нет уровней для chto-propalo');
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = 'Не удалось загрузить настройки игры. Позовите взрослого.';
+    return;
+  }
+  levelSwitch = mountLevelSwitch({
+    container: qs('#level'),
+    hintEl: qs('#levelHint'),
+    hints: Object.fromEntries(Object.entries(levels).map(([id, c]) => [id, c.hint])),
+    storageKey: 'cp-level',
+    onChange: () => { firstRound = true; newRound(); }
+  });
+  rememberBtn.addEventListener('click', () => {
+    if (state.phase !== 'memorize') return;
+    state.phase = 'answer';
+    render();
+    sndHint();
+    speak('Смотри вниз. Что пропало?');
+  });
+  nextBtn.addEventListener('click', newRound);
+  newRound();
+}
+
+init();
+</script>
+</body>
+</html>

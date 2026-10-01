@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#fff6df">
+<title>Котик и щенок</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48'%3E%F0%9F%90%B1%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="../manifest.json">
+<link rel="apple-touch-icon" href="../shared/img/icon-192.png">
+<link rel="stylesheet" href="../shared/css/base.css">
+<link rel="stylesheet" href="../shared/css/layout.css">
+<link rel="stylesheet" href="../shared/css/cards.css">
+</head>
+<body>
+<main class="game">
+  <nav class="nav">
+    <a class="button secondary" href="../index.html">← Все игры</a>
+    <div class="toggles" id="toggles"></div>
+  </nav>
+  <h1>🐱 Котик и щенок 🐶</h1>
+  <p class="subtitle">Собери три картинки в ряд!</p>
+  <div class="mode" role="group" aria-label="Режим игры">
+    <button class="button secondary" type="button" id="together" aria-pressed="true">Играем вдвоём</button>
+    <button class="button secondary" type="button" id="computer" aria-pressed="false">С компьютером</button>
+  </div>
+  <div class="level" id="level" role="group" aria-label="Сложность" hidden></div>
+  <p class="level-hint" id="levelHint"></p>
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+  <div class="board ttt" id="board" aria-label="Игровое поле 3 на 3"></div>
+  <button type="button" class="button orange restart" id="restart">🔄 Играть снова</button>
+  <p class="hint" id="hint"></p>
+</main>
+<script type="module">
+import { loadJSON } from '../shared/js/content/loader.js';
+import { createEl, qs } from '../shared/js/core/dom.js';
+import { registerServiceWorker } from '../shared/js/core/pwa.js';
+import { mountToggles } from '../shared/js/core/settings.js';
+import { sndDraw, sndMove, sndWinGood, sndWinSoft } from '../shared/js/core/sound.js';
+import { speak } from '../shared/js/core/voice.js';
+import { chooseComputerMove, result } from '../shared/js/logic/tictactoe.js';
+import { LEVEL_LABELS, mountLevelSwitch } from '../shared/js/ui/level-switch.js';
+
+const SYMBOLS = { X: '🐱', O: '🐶' };
+const boardEl = qs('#board');
+const statusEl = qs('#status');
+const hintEl = qs('#hint');
+const levelHintEl = qs('#levelHint');
+const levelGroup = qs('#level');
+const togetherBtn = qs('#together');
+const computerBtn = qs('#computer');
+
+let cfgAll = null;
+let levelSwitch = null;
+let board = [];
+let turn = 'X';
+let finished = false;
+let vsComputer = false;
+let winningLine = null;
+let timer = null;
+let cells = [];
+
+const levelCfg = () => cfgAll[levelSwitch.get()];
+
+function winMessages(winner) {
+  const cat = winner === 'X';
+  const text = vsComputer
+    ? (cat ? 'Победа! Молодец!' : 'Щенок победил. Попробуй ещё раз')
+    : `Победил ${cat ? 'котик' : 'щенок'}! Молодец!`;
+  return { status: `${SYMBOLS[winner]} ${text}`, voice: text, good: cat || !vsComputer };
+}
+
+function render() {
+  cells.forEach((cell, i) => {
+    cell.textContent = SYMBOLS[board[i]] || '';
+    cell.disabled = Boolean(board[i]) || finished || (vsComputer && turn === 'O');
+    cell.classList.toggle('win', Boolean(winningLine) && winningLine.includes(i));
+    const who = board[i] === 'X' ? 'котик' : board[i] === 'O' ? 'щенок' : 'пусто';
+    cell.setAttribute('aria-label', `Ряд ${Math.floor(i / 3) + 1}, столбец ${(i % 3) + 1}: ${who}`);
+  });
+  const end = result(board);
+  if (end && end.winner) statusEl.textContent = winMessages(end.winner).status;
+  else if (end && end.draw) statusEl.textContent = '🤝 Ничья! Сыграем ещё?';
+  else if (vsComputer && turn === 'O') statusEl.textContent = '🐶 Щенок думает...';
+  else statusEl.textContent = `Ходит ${SYMBOLS[turn]} ${turn === 'X' ? 'котик' : 'щенок'}`;
+}
+
+function reset() {
+  clearTimeout(timer);
+  board = Array(9).fill('');
+  finished = false;
+  winningLine = null;
+  const computerFirst = vsComputer && levelCfg().computerFirst;
+  turn = computerFirst ? 'O' : 'X';
+  render();
+  speak(computerFirst ? 'Щенок ходит первым' : (turn === 'O' ? 'Ходит щенок' : 'Ходит котик'));
+  if (vsComputer && turn === 'O') timer = setTimeout(computerMove, 500);
+}
+
+function place(i) {
+  board[i] = turn;
+  const end = result(board);
+  if (end) {
+    finished = true;
+    winningLine = end.line || null;
+    if (end.winner) {
+      const msg = winMessages(end.winner);
+      if (msg.good) sndWinGood(); else sndWinSoft();
+      speak(msg.voice);
+    } else {
+      sndDraw();
+      speak('Ничья! Сыграем ещё?');
+    }
+  } else {
+    turn = turn === 'X' ? 'O' : 'X';
+    sndMove();
+  }
+  render();
+}
+
+function move(i) {
+  if (finished || board[i] || (vsComputer && turn === 'O')) return;
+  place(i);
+  if (!finished && vsComputer && turn === 'O') timer = setTimeout(computerMove, 550);
+}
+
+function computerMove() {
+  if (finished || !vsComputer || turn !== 'O') return;
+  place(chooseComputerMove(board, levelCfg()));
+}
+
+function updateUI() {
+  togetherBtn.setAttribute('aria-pressed', String(!vsComputer));
+  computerBtn.setAttribute('aria-pressed', String(vsComputer));
+  levelGroup.hidden = !vsComputer;
+  const texts = vsComputer ? levelCfg() : cfgAll.together;
+  levelHintEl.textContent = texts.levelHint;
+  hintEl.textContent = texts.hint;
+}
+
+async function init() {
+  mountToggles(qs('#toggles'));
+  registerServiceWorker();
+  try {
+    cfgAll = (await loadJSON('../shared/content/levels-memory.json'))['tic-tac-toe'];
+    if (!cfgAll || !cfgAll.easy || !cfgAll.together) throw new Error('Нет настроек tic-tac-toe');
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = 'Не удалось загрузить настройки игры. Позовите взрослого.';
+    return;
+  }
+  cells = Array.from({ length: 9 }, (_, i) => createEl('button', {
+    className: 'cell',
+    attrs: { type: 'button' },
+    on: { click: () => move(i) }
+  }));
+  boardEl.replaceChildren(...cells);
+
+  levelSwitch = mountLevelSwitch({
+    container: levelGroup,
+    hints: { easy: '', hard: '', veryHard: '' },
+    storageKey: 'ks-level',
+    onChange: (level) => { updateUI(); reset(); speak(LEVEL_LABELS[level]); }
+  });
+  togetherBtn.addEventListener('click', () => { vsComputer = false; updateUI(); reset(); });
+  computerBtn.addEventListener('click', () => { vsComputer = true; updateUI(); reset(); });
+  qs('#restart').addEventListener('click', reset);
+  updateUI();
+  reset();
+}
+
+init();
+</script>
+</body>
+</html>

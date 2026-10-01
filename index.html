@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#fff6df">
+<title>Игры для малышей</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48'%3E%F0%9F%8E%B2%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="shared/img/icon-192.png">
+<link rel="stylesheet" href="shared/css/base.css">
+<link rel="stylesheet" href="shared/css/layout.css">
+<link rel="stylesheet" href="shared/css/cards.css">
+</head>
+<body>
+<main class="game menu-page">
+  <h1>Игры для малышей</h1>
+  <p class="subtitle">Выбери игру</p>
+  <nav class="menu" aria-label="Список игр">
+      <a class="menu-item" href="games/tretiy-lishniy.html">
+        <span class="menu-emoji" aria-hidden="true">🍎🍐🚌</span>
+        <span>
+          <p class="menu-title">Третий лишний</p>
+          <p class="menu-hint">Найди лишнюю картинку</p>
+        </span>
+      </a>
+      <a class="menu-item" href="games/chto-propalo.html">
+        <span class="menu-emoji" aria-hidden="true">🚀🍐🧸</span>
+        <span>
+          <p class="menu-title">Что пропало?</p>
+          <p class="menu-hint">Вспомни, чего не стало</p>
+        </span>
+      </a>
+      <a class="menu-item" href="games/chto-poyavilos.html">
+        <span class="menu-emoji" aria-hidden="true">🚀🍐🧸🐸</span>
+        <span>
+          <p class="menu-title">Что появилось?</p>
+          <p class="menu-hint">Найди новую картинку</p>
+        </span>
+      </a>
+      <a class="menu-item" href="games/kotik-i-shchenok.html">
+        <span class="menu-emoji" aria-hidden="true">🐱🐶</span>
+        <span>
+          <p class="menu-title">Котик и щенок</p>
+          <p class="menu-hint">Собери три в ряд</p>
+        </span>
+      </a>
+  </nav>
+  <p class="footer">Для детей 4–6 лет · играем вместе со взрослым</p>
+</main>
+<script type="module">
+import { registerServiceWorker } from './shared/js/core/pwa.js';
+registerServiceWorker();
+</script>
+</body>
+</html>
