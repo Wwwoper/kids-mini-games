@@ -4,6 +4,15 @@ const MAX_STICKERS = 300;
 const MAX_ERRORS = 60;
 const MAX_DAYS = 60;
 const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function isDateKey(value) {
+  if (typeof value !== 'string' || !DAY_RE.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year
+    && date.getUTCMonth() === month - 1
+    && date.getUTCDate() === day;
+}
 const ID_RE = /^[a-z0-9-]{1,40}$/;
 
 export const dateKey = (d = new Date()) => {
@@ -26,7 +35,7 @@ export function normalize(raw) {
   s.adaptive = raw.adaptive !== false;
 
   Object.entries(raw.days || {}).forEach(([key, v]) => {
-    if (DAY_RE.test(key) && v && typeof v === 'object') {
+    if (isDateKey(key) && v && typeof v === 'object') {
       s.days[key] = { answers: num(v.answers), correct: num(v.correct), rounds: num(v.rounds), stars: num(v.stars) };
     }
   });
@@ -48,7 +57,7 @@ export function normalize(raw) {
 
   if (Array.isArray(raw.stickers)) {
     s.stickers = raw.stickers
-      .filter((x) => x && DAY_RE.test(x.d) && typeof x.e === 'string' && x.e.length <= 8)
+      .filter((x) => x && isDateKey(x.d) && typeof x.e === 'string' && x.e.length <= 8)
       .map((x) => ({ d: x.d, e: x.e }))
       .slice(-MAX_STICKERS);
   }

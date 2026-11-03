@@ -339,6 +339,21 @@ export function runSuite({ rounds, memory, skolko, uzor, posledovatelnost, clean
       assert(Object.values(s.days).every((d) => Number.isInteger(d.rounds) && d.rounds >= 0), 'мусор в days');
     });
   });
+  test('Прогресс', 'normalize отклоняет календарно невозможные даты', () => {
+    const s = normalize({
+      days: {
+        '2026-02-31': { rounds: 7 },
+        '2024-02-29': { rounds: 2 },
+        '2025-02-29': { rounds: 9 }
+      },
+      stickers: [
+        { d: '2026-13-01', e: '⭐' },
+        { d: '2024-02-29', e: '🌈' }
+      ]
+    });
+    assert(JSON.stringify(Object.keys(s.days)) === JSON.stringify(['2024-02-29']), 'некорректные дни должны отбрасываться');
+    assert(JSON.stringify(s.stickers) === JSON.stringify([{ d: '2024-02-29', e: '🌈' }]), 'наклейка с невозможной датой должна отбрасываться');
+  });
 
   return tests.map(({ group, name, fn }) => {
     try {
