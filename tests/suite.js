@@ -190,6 +190,13 @@ export function runSuite({ rounds, memory, skolko, uzor, posledovatelnost, clean
     assert(chooseComputerMove(['O', 'O', '', 'X', 'X', '', '', '', ''], cfg) === 2, 'не выиграл');
     assert(chooseComputerMove(['X', 'X', '', '', 'O', '', '', '', ''], cfg) === 2, 'не заблокировал');
   });
+  test('Котик и щенок', 'компьютер не выбирает ход на заполненном поле', () => {
+    const fullDraw = ['X', 'O', 'X', 'X', 'O', 'O', 'O', 'X', 'X'];
+    const cfg = memory['tic-tac-toe'].easy;
+    assert(chooseComputerMove(fullDraw, cfg) === null, 'easy вернул ход на заполненном поле');
+    assert(chooseComputerMove(fullDraw, memory['tic-tac-toe'].veryHard) === null, 'minimax вернул ход на заполненном поле');
+    assert(bestMinimaxMove(fullDraw) === null, 'bestMinimaxMove вернул ход на заполненном поле');
+  });
 
   // ---- Сколько?
   const countItems = skolko.items.map((id) => (POOL[id] ? { id, ...POOL[id] } : null));

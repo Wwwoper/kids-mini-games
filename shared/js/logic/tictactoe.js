@@ -30,6 +30,7 @@ function minimax(b, isMax, depth) {
 }
 
 export function bestMinimaxMove(b) {
+  if (!b.some((cell) => !cell)) return null;
   let best = -Infinity;
   let moves = [];
   for (let i = 0; i < 9; i++) {
@@ -49,6 +50,7 @@ export function bestMinimaxMove(b) {
 
 // Простой уровень: выиграть, если можно; иначе заблокировать; иначе по приоритету клеток.
 export function easyMove(b) {
+  if (!b.some((cell) => !cell)) return null;
   for (const player of ['O', 'X']) {
     for (let i = 0; i < 9; i++) {
       if (b[i]) continue;
@@ -64,6 +66,7 @@ export function easyMove(b) {
 
 // cfg — { strategy: 'simple' | 'minimax', mistakeChance }
 export function chooseComputerMove(board, cfg, rnd = Math.random) {
+  if (!board.some((cell) => !cell)) return null;
   if (cfg.strategy === 'simple') return easyMove(board);
   if (rnd() < cfg.mistakeChance) {
     const free = board.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0);

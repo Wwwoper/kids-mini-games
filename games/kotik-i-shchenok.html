@@ -119,7 +119,8 @@ function move(i) {
 
 function computerMove() {
   if (finished || !vsComputer || turn !== 'O') return;
-  place(chooseComputerMove(board, levelCfg()));
+  const moveIndex = chooseComputerMove(board, levelCfg());
+  if (moveIndex !== null) place(moveIndex);
 }
 
 function updateUI() {
