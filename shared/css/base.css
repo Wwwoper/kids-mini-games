@@ -54,6 +54,7 @@ button { cursor: pointer; }
 
 .button {
   display: inline-block;
+  min-height: 44px;
   text-decoration: none;
   font-weight: 700;
   border: 0;
@@ -84,6 +85,8 @@ input:focus-visible {
 .toggles { display: flex; gap: 6px; }
 
 .icon-btn {
+  min-width: 44px;
+  min-height: 44px;
   background: var(--soft);
   border: 0;
   border-radius: 12px;
