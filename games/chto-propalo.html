@@ -23,11 +23,11 @@
   <div class="level" id="level" role="group" aria-label="Сложность"></div>
   <p class="level-hint" id="levelHint"></p>
   <div class="status" id="status" role="status" aria-live="polite"></div>
-  <div class="board" id="board" data-cols="3" aria-label="Карточки для запоминания"></div>
+  <div role="group" class="board" id="board" data-cols="3" aria-label="Карточки для запоминания"></div>
   <div class="pointer" id="pointer" hidden aria-hidden="true">⬇</div>
   <section class="answers" id="answersBlock" hidden aria-labelledby="answersTitle">
     <p class="answers-title" id="answersTitle"><span class="arrow" aria-hidden="true">👇</span> Что пропало? Выбери здесь</p>
-    <div class="options answer-options" id="options" aria-label="Варианты ответа"></div>
+    <div role="group" class="options answer-options" id="options" aria-label="Варианты ответа"></div>
   </section>
   <button type="button" class="button" id="remember" style="margin-top:16px" hidden>👀 Запомнил!</button>
   <button type="button" class="button orange next" id="next" hidden>🔄 Ещё</button>
