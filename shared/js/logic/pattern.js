@@ -5,7 +5,9 @@ export function makeRound(list, cfg) {
   const { patterns, options: M } = cfg;
   const { p, shown } = patterns[Math.floor(Math.random() * patterns.length)];
   const letters = [...new Set(p)];
-  if (list.length < letters.length + M) return null;
+  // Для M уникальных вариантов достаточно M разных карточек всего:
+  // ответ плюс M - 1 отвлекающих вариантов.
+  if (list.length < M) return null;
 
   const symbols = sample(list, letters.length);
   const map = Object.fromEntries(letters.map((l, i) => [l, symbols[i]]));
