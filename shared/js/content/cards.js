@@ -48,4 +48,8 @@ export const POOL = {
 
 export const POOL_LIST = Object.entries(POOL).map(([id, card]) => ({ id, ...card }));
 
-export const getCard = (id) => (POOL[id] ? { id, ...POOL[id] } : null);
+export const getCard = (id) => (
+  typeof id === 'string' && Object.prototype.hasOwnProperty.call(POOL, id)
+    ? { id, ...POOL[id] }
+    : null
+);
