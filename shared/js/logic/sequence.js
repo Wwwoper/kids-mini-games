@@ -28,9 +28,11 @@ export function makeRound(sequences, cfg) {
   const seq = usable[Math.floor(Math.random() * usable.length)];
   const start = Math.floor(Math.random() * (seq.steps.length - n + 1));
   const steps = seq.steps.slice(start, start + n);
-  let order;
-  do {
-    order = shuffle(steps);
-  } while (n > 1 && order.every((s, i) => s === steps[i]));
+  let order = shuffle(steps);
+  // При вырожденном генераторе случайных чисел не повторяем shuffle бесконечно.
+  if (n > 1 && order.every((s, i) => s === steps[i])) {
+    order = order.slice();
+    [order[n - 2], order[n - 1]] = [order[n - 1], order[n - 2]];
+  }
   return { title: seq.title, steps, order };
 }

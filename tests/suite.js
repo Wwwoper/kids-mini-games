@@ -262,6 +262,20 @@ export function runSuite({ rounds, memory, skolko, uzor, posledovatelnost, clean
       assert(step.label.trim(), `${seq.title}: пустая подпись`);
     }));
   });
+  test('Что сначала, что потом?', 'создание раунда завершается, даже если shuffle возвращает исходный порядок', () => {
+    const originalRandom = Math.random;
+    try {
+      Math.random = () => 0;
+      const r = makeSequence([{ title: 'Тест', steps: [
+        { label: 'а', image: '../shared/img/sequences/a.svg' },
+        { label: 'б', image: '../shared/img/sequences/b.svg' },
+        { label: 'в', image: '../shared/img/sequences/c.svg' }
+      ] }], { steps: 3 });
+      assert(r && r.order.some((step, i) => step !== r.steps[i]), 'порядок не перемешан');
+    } finally {
+      Math.random = originalRandom;
+    }
+  });
   test('Что сначала, что потом?', 'validateSequence находит ошибки', () => {
     assert(validateSequence({ title: '', steps: [] }).length > 0, 'пустая');
     assert(validateSequence({ title: 'x', steps: [{ image: '../shared/img/sequences/a.svg', label: 'a' }, { image: '../shared/img/sequences/a.svg', label: 'b' }] }).length > 0, 'повтор image');
