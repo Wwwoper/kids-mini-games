@@ -57,10 +57,15 @@ export function runSuite({ rounds, memory, skolko, uzor, posledovatelnost, clean
   }
 
   // ---- Третий лишний
-  test('Третий лишний', 'pickRound завершает выбор при повторе предыдущего индекса', () => {
+  test('Третий лишний', 'pickRound выбирает равномерно среди раундов кроме предыдущего', () => {
     const items = ['a', 'b', 'c'];
-    const picked = pickRound(items, 0, () => 0);
-    assert(picked.idx === 1 && picked.round === 'b', 'не выбран следующий индекс');
+    const expected = [0, 2, 2];
+    [0, 0.5, 0.999].forEach((value, index) => {
+      const picked = pickRound(items, 1, () => value);
+      assert(picked.idx === expected[index], `для random=${value} получен индекс ${picked.idx}`);
+      assert(picked.round === items[picked.idx], 'round не соответствует idx');
+    });
+    assert(pickRound(items, -1, () => 0).idx === 0, 'без предыдущего раунда выбор начинается с нулевого');
     assert(pickRound(['only'], 0, () => 0).round === 'only', 'единственный раунд недоступен');
     assert(pickRound([], -1, () => 0) === null, 'пустой список должен вернуть null');
   });
