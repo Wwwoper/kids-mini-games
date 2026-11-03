@@ -66,11 +66,24 @@ export function easyMove(b) {
 
 // cfg — { strategy: 'simple' | 'minimax', mistakeChance }
 export function chooseComputerMove(board, cfg, rnd = Math.random) {
+  if (!Array.isArray(board) || board.length !== 9
+    || board.some((cell) => !['', 'X', 'O'].includes(cell))
+    || result(board)) return null;
+  if (!cfg || typeof cfg !== 'object'
+    || !['simple', 'minimax'].includes(cfg.strategy)
+    || !Number.isFinite(cfg.mistakeChance)
+    || cfg.mistakeChance < 0 || cfg.mistakeChance > 1
+    || typeof rnd !== 'function') return null;
   if (!board.some((cell) => !cell)) return null;
   if (cfg.strategy === 'simple') return easyMove(board);
-  if (rnd() < cfg.mistakeChance) {
+
+  const mistakeRoll = rnd();
+  if (!Number.isFinite(mistakeRoll) || mistakeRoll < 0 || mistakeRoll >= 1) return null;
+  if (mistakeRoll < cfg.mistakeChance) {
     const free = board.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0);
-    return free[Math.floor(rnd() * free.length)];
+    const moveRoll = rnd();
+    if (!Number.isFinite(moveRoll) || moveRoll < 0 || moveRoll >= 1) return null;
+    return free[Math.floor(moveRoll * free.length)];
   }
   return bestMinimaxMove(board.slice());
 }
