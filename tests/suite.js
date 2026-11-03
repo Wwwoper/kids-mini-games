@@ -135,7 +135,9 @@ export function runSuite({ rounds, memory, skolko, uzor, posledovatelnost, clean
         assert(finalIds.filter((id) => !sIds.includes(id)).length === 1, 'новых id не один');
         assert(new Set(finalIds).size === finalIds.length, 'повторы в finalItems');
         if (!cfg.shuffle) {
-          assert(finalIds.filter((id) => id !== r.newItem.id).join() === sIds.join(), 'старый порядок нарушен');
+          assert(cfg.memCols === cfg.finCols, 'геометрия поля меняется между фазами');
+          assert(sIds.every((id, index) => finalIds[index] === id), 'позиции старых карточек изменились');
+          assert(finalIds[cfg.N] === r.newItem.id, 'новая карточка должна занимать последнюю ячейку');
         }
       }
     });

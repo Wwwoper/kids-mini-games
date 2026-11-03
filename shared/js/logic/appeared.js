@@ -1,6 +1,7 @@
 import { shuffle, sample } from '../core/rng.js';
 
 // cfg — { N, shuffle }. Возвращает исходный набор S, новую карточку и итоговый набор.
+// При shuffle: false исходные карточки сохраняют свои индексы, новая добавляется в конец.
 export function makeRound(list, cfg) {
   const { N, shuffle: doShuffle } = cfg;
   if (list.length < N + 1) return null;
@@ -12,8 +13,7 @@ export function makeRound(list, cfg) {
   if (doShuffle) {
     finalItems = shuffle([...S, newItem]);
   } else {
-    finalItems = [...S];
-    finalItems.splice(Math.floor(Math.random() * (N + 1)), 0, newItem);
+    finalItems = [...S, newItem];
   }
   return { S, newItem, finalItems };
 }
