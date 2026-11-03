@@ -18,6 +18,16 @@ assert.equal(makeAppeared(null, { N: 2, shuffle: false }), null);
 assert.equal(makeMissing(cards.slice(0, 2), { N: 2, M: 2, shuffle: false }), null);
 assert.equal(makeAppeared([{ id: 'x' }, { id: 'x' }], { N: 1, shuffle: false }), null);
 assert.equal(makeMissing([{ id: 'x' }, { id: 'x' }, { id: 'y' }], { N: 1, M: 2, shuffle: false }), null);
+for (const malformedCard of [
+  { id: 'x', emoji: '🍎' },
+  { id: 'x', label: 'яблоко' },
+  { id: 'x', label: '  ', emoji: '🍎' },
+  { id: 'x', label: 'яблоко', emoji: '  ' }
+]) {
+  const list = [malformedCard, cards[1], cards[2]];
+  assert.equal(makeAppeared(list, { N: 1, shuffle: false }), null, 'appeared rejects cards without accessible presentation');
+  assert.equal(makeMissing(list, { N: 1, M: 2, shuffle: false }), null, 'missing rejects cards without accessible presentation');
+}
 
 for (const bad of [null, undefined, {}, { min: -1, max: 2, options: 2, mode: 'mixed' },
   { min: 1, max: 2, options: 3, mode: 'mixed' }, { min: 1, max: 3, options: 2, mode: 'invalid' }]) {

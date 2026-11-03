@@ -6,7 +6,10 @@ export function makeRound(list, cfg) {
   if (!Array.isArray(list) || !cfg || !Number.isInteger(cfg.N) || cfg.N < 1
     || typeof cfg.shuffle !== 'boolean' || list.length < cfg.N + 1) return null;
   const ids = list.map((item) => item?.id);
-  if (ids.some((id) => typeof id !== 'string' || !id) || new Set(ids).size !== ids.length) return null;
+  if (list.some((item) => typeof item?.id !== 'string' || !item.id
+    || typeof item.label !== 'string' || !item.label.trim()
+    || typeof item.emoji !== 'string' || !item.emoji.trim())
+    || new Set(ids).size !== ids.length) return null;
 
   const { N, shuffle: doShuffle } = cfg;
   const S = sample(list, N);
