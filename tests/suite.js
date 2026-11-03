@@ -89,6 +89,18 @@ export function runSuite({ rounds, memory, skolko, uzor, posledovatelnost, clean
   test('Третий лишний', 'explain непустой', () => {
     LEVEL_IDS.forEach((lv) => rounds[lv].forEach((r, i) => assert(r.explain.trim().length > 0, `${lv}[${i}]`)));
   });
+  test('Третий лишний', 'неоднозначные раунды про форму используют явно некруглый предмет', () => {
+    const cases = [
+      { pair: ['moon', 'plate'], odd: 'shoe' },
+      { pair: ['egg', 'grape'], odd: 'shoe' }
+    ];
+    cases.forEach(({ pair, odd }) => {
+      const round = rounds.veryHard.find((item) =>
+        item.cards.length === pair.length && pair.every((id) => item.cards.includes(id))
+      );
+      assert(round && round.odd === odd, `для пары ${pair.join(' + ')} ожидается ${odd}`);
+    });
+  });
   test('Третий лишний', 'validateRound находит ошибки', () => {
     assert(validateRound({ cards: ['apple', 'nope'], odd: 'bus', explain: 'x' }, POOL).length > 0, 'неизвестный id');
     assert(validateRound({ cards: ['apple', 'pear'], odd: 'apple', explain: 'x' }, POOL).length > 0, 'odd среди cards');
