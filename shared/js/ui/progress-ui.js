@@ -16,6 +16,8 @@ export function createGameProgress({ gameId, title, host }) {
   let session = 0;
   let rewardTimer = null;
   const cancelPendingReward = () => {
+    // Сброс начинает новую серию раундов для следующей награды.
+    session = 0;
     if (rewardTimer !== null) {
       clearTimeout(rewardTimer);
       rewardTimer = null;
