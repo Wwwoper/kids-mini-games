@@ -4,8 +4,12 @@ export const NUMBER_WORDS = ['ноль', 'один', 'два', 'три', 'чет
 
 // cfg: { min, max, options, mode: 'count-to-digit' | 'digit-to-count' | 'mixed' }
 export function makeRound(list, cfg) {
+  if (!Array.isArray(list) || !list.length || !cfg) return null;
   const { min, max, options: M } = cfg;
-  if (!list.length || max - min + 1 < M) return null;
+  if (!Number.isInteger(min) || !Number.isInteger(max) || min < 0 || max > 10 || max < min
+    || !Number.isInteger(M) || M < 2 || max - min + 1 < M
+    || !['count-to-digit', 'digit-to-count', 'mixed'].includes(cfg.mode)
+    || list.some((item) => !item || typeof item.emoji !== 'string' || !item.emoji)) return null;
   const mode = cfg.mode === 'mixed'
     ? (Math.random() < 0.5 ? 'count-to-digit' : 'digit-to-count')
     : cfg.mode;
