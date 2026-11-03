@@ -76,3 +76,13 @@ button:disabled { cursor: default; }
   25% { transform: translateX(-5px); }
   75% { transform: translateX(5px); }
 }
+
+/* Локальные иллюстрации последовательностей */
+.card-image {
+  display: block;
+  width: 82%;
+  height: 82%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}

@@ -52,7 +52,7 @@ let state = null;
 let firstRound = true;
 
 const cfg = () => levels[levelSwitch.get()];
-const asItem = (step) => ({ id: step.emoji, emoji: step.emoji, label: step.label });
+const asItem = (step) => ({ id: step.image, image: step.image, label: step.label });
 
 function newRound() {
   nextBtn.hidden = true;

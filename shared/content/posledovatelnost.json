@@ -18,20 +18,20 @@
       "title": "Растение",
       "steps": [
         {
-          "emoji": "🌰",
+          "image": "../shared/img/sequences/plant-seed.svg",
           "label": "семечко"
         },
         {
-          "emoji": "🌱",
-          "label": "росточек"
+          "image": "../shared/img/sequences/plant-sprout.svg",
+          "label": "росток"
         },
         {
-          "emoji": "🌿",
-          "label": "растение"
+          "image": "../shared/img/sequences/plant-leaves.svg",
+          "label": "растение с листьями"
         },
         {
-          "emoji": "🌸",
-          "label": "цветок"
+          "image": "../shared/img/sequences/plant-flower.svg",
+          "label": "цветущее растение"
         }
       ]
     },
@@ -39,19 +39,19 @@
       "title": "Цыплёнок",
       "steps": [
         {
-          "emoji": "🥚",
+          "image": "../shared/img/sequences/egg-whole.svg",
           "label": "яйцо"
         },
         {
-          "emoji": "🐣",
-          "label": "птенец"
+          "image": "../shared/img/sequences/egg-hatching.svg",
+          "label": "цыплёнок вылупляется"
         },
         {
-          "emoji": "🐥",
+          "image": "../shared/img/sequences/chick-small.svg",
           "label": "цыплёнок"
         },
         {
-          "emoji": "🐔",
+          "image": "../shared/img/sequences/hen.svg",
           "label": "курица"
         }
       ]
@@ -60,19 +60,19 @@
       "title": "День",
       "steps": [
         {
-          "emoji": "🌅",
-          "label": "утро"
+          "image": "../shared/img/sequences/day-sunrise.svg",
+          "label": "восход солнца"
         },
         {
-          "emoji": "☀️",
-          "label": "день"
+          "image": "../shared/img/sequences/day-noon.svg",
+          "label": "полдень"
         },
         {
-          "emoji": "🌇",
-          "label": "вечер"
+          "image": "../shared/img/sequences/day-sunset.svg",
+          "label": "закат солнца"
         },
         {
-          "emoji": "🌙",
+          "image": "../shared/img/sequences/day-night.svg",
           "label": "ночь"
         }
       ]
@@ -81,19 +81,19 @@
       "title": "Дождь",
       "steps": [
         {
-          "emoji": "☁️",
-          "label": "тучи"
+          "image": "../shared/img/sequences/rain-cloud.svg",
+          "label": "туча"
         },
         {
-          "emoji": "🌧️",
+          "image": "../shared/img/sequences/rain-shower.svg",
           "label": "дождь"
         },
         {
-          "emoji": "🌦️",
-          "label": "дождь и солнце"
+          "image": "../shared/img/sequences/rain-sunbreak.svg",
+          "label": "солнце после дождя"
         },
         {
-          "emoji": "🌈",
+          "image": "../shared/img/sequences/rain-rainbow.svg",
           "label": "радуга"
         }
       ]

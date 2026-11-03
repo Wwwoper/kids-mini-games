@@ -1,5 +1,5 @@
 // Поднимайте VERSION при каждом релизе: старый кэш будет удалён автоматически.
-const VERSION = 'v0.5.0';
+const VERSION = 'v0.6.0';
 const CACHE = `kmg-${VERSION}`;
 const ASSETS = [
   './',
@@ -23,6 +23,22 @@ const ASSETS = [
   'shared/img/icon-192.png',
   'shared/img/icon-512.png',
   'shared/img/icon-maskable-512.png',
+  'shared/img/sequences/chick-small.svg',
+  'shared/img/sequences/day-night.svg',
+  'shared/img/sequences/day-noon.svg',
+  'shared/img/sequences/day-sunrise.svg',
+  'shared/img/sequences/day-sunset.svg',
+  'shared/img/sequences/egg-hatching.svg',
+  'shared/img/sequences/egg-whole.svg',
+  'shared/img/sequences/hen.svg',
+  'shared/img/sequences/plant-flower.svg',
+  'shared/img/sequences/plant-leaves.svg',
+  'shared/img/sequences/plant-seed.svg',
+  'shared/img/sequences/plant-sprout.svg',
+  'shared/img/sequences/rain-cloud.svg',
+  'shared/img/sequences/rain-rainbow.svg',
+  'shared/img/sequences/rain-shower.svg',
+  'shared/img/sequences/rain-sunbreak.svg',
   'shared/js/content/cards.js',
   'shared/js/content/loader.js',
   'shared/js/core/dom.js',

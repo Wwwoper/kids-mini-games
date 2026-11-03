@@ -1,6 +1,6 @@
 import { createEl } from '../core/dom.js';
 
-// item: { id, label, emoji } или null для закрытой карточки.
+// item: { id, label, emoji } или { id, label, image } либо null для закрытой карточки.
 // tag: 'button' (интерактивная) или 'div' (только показ).
 export function createCard(item, { tag = 'div', base = 'card', covered = false, onClick = null } = {}) {
   const attrs = {};
@@ -10,7 +10,14 @@ export function createCard(item, { tag = 'div', base = 'card', covered = false, 
   if (covered || !item) {
     el.setAttribute('aria-label', 'закрытая карточка');
   } else {
-    el.textContent = item.emoji;
+    if (item.image) {
+      el.append(createEl('img', {
+        className: 'card-image',
+        attrs: { src: item.image, alt: '', draggable: 'false' }
+      }));
+    } else {
+      el.textContent = item.emoji;
+    }
     el.setAttribute('aria-label', item.label);
   }
   if (onClick) el.addEventListener('click', () => onClick(item, el));

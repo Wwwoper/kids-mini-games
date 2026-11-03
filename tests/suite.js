@@ -237,9 +237,16 @@ export function runSuite({ rounds, memory, skolko, uzor, posledovatelnost, clean
     const bad = posledovatelnost.sequences.map((s) => validateSequence(s).join('; ')).filter(Boolean);
     assert(bad.length === 0, bad.join(' | '));
   });
+  test('Что сначала, что потом?', 'все шаги используют локальные SVG-иллюстрации', () => {
+    posledovatelnost.sequences.forEach((seq) => seq.steps.forEach((step) => {
+      assert(step.image.startsWith('../shared/img/sequences/') && step.image.endsWith('.svg'), `${seq.title}: неверный путь ${step.image}`);
+      assert(step.label.trim(), `${seq.title}: пустая подпись`);
+    }));
+  });
   test('Что сначала, что потом?', 'validateSequence находит ошибки', () => {
     assert(validateSequence({ title: '', steps: [] }).length > 0, 'пустая');
-    assert(validateSequence({ title: 'x', steps: [{ emoji: 'a', label: 'b' }, { emoji: 'a', label: 'c' }] }).length > 0, 'повтор emoji');
+    assert(validateSequence({ title: 'x', steps: [{ image: '../shared/img/sequences/a.svg', label: 'a' }, { image: '../shared/img/sequences/a.svg', label: 'b' }] }).length > 0, 'повтор image');
+    assert(validateSequence({ title: 'x', steps: [{ image: 'https://example.com/a.svg', label: 'a' }, { image: '../shared/img/sequences/b.svg', label: 'b' }] }).length > 0, 'внешний URL');
   });
   Object.entries(posledovatelnost.levels).forEach(([lv, cfg]) => {
     test('Что сначала, что потом?', `уровень ${lv}: инварианты за ${REPEATS} раундов`, () => {

@@ -5,11 +5,17 @@ export function validateSequence(seq) {
   const errors = [];
   if (!seq || typeof seq.title !== 'string' || !seq.title.trim()) errors.push('title пустой');
   if (!seq || !Array.isArray(seq.steps) || seq.steps.length < 2) return [...errors, 'steps: нужно минимум 2 шага'];
-  const emojis = new Set();
+  const images = new Set();
   seq.steps.forEach((s, i) => {
-    if (!s || !s.emoji || !s.label) errors.push(`шаг ${i + 1}: нужны emoji и label`);
-    else if (emojis.has(s.emoji)) errors.push(`шаг ${i + 1}: emoji повторяется`);
-    else emojis.add(s.emoji);
+    if (!s || typeof s.label !== 'string' || !s.label.trim() || typeof s.image !== 'string') {
+      errors.push(`шаг ${i + 1}: нужны image и label`);
+    } else if (!s.image.startsWith('../shared/img/sequences/') || !s.image.endsWith('.svg')) {
+      errors.push(`шаг ${i + 1}: image должен быть локальным SVG из shared/img/sequences`);
+    } else if (images.has(s.image)) {
+      errors.push(`шаг ${i + 1}: image повторяется`);
+    } else {
+      images.add(s.image);
+    }
   });
   return errors;
 }
