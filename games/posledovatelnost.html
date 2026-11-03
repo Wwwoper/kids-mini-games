@@ -114,6 +114,8 @@ function pick(step, btn) {
       nextBtn.hidden = false;
       nextBtn.focus();
     } else {
+      const nextStepIndex = state.order.indexOf(state.steps[state.placed]);
+      pileEl.children[nextStepIndex]?.focus();
       sndMove();
       speak('Что было дальше?');
       progress.answer(true, null, { adapt: false });
