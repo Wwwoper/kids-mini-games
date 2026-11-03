@@ -2,12 +2,20 @@ import { shuffle, sample } from '../core/rng.js';
 
 // cfg: { patterns: [{ p: 'AAB', shown: 5 }], options: M }
 export function makeRound(list, cfg) {
+  if (!Array.isArray(list) || !cfg || !Array.isArray(cfg.patterns)
+    || !Number.isInteger(cfg.options) || cfg.options < 2
+    || list.length < cfg.options || cfg.patterns.length === 0) return null;
+
   const { patterns, options: M } = cfg;
-  const { p, shown } = patterns[Math.floor(Math.random() * patterns.length)];
+  const selected = patterns[Math.floor(Math.random() * patterns.length)];
+  if (!selected || typeof selected.p !== 'string' || selected.p.length === 0
+    || !Number.isInteger(selected.shown) || selected.shown < 1) return null;
+
+  const { p, shown } = selected;
   const letters = [...new Set(p)];
+  if (letters.length > list.length) return null;
   // Для M уникальных вариантов достаточно M разных карточек всего:
   // ответ плюс M - 1 отвлекающих вариантов.
-  if (list.length < M) return null;
 
   const symbols = sample(list, letters.length);
   const map = Object.fromEntries(letters.map((l, i) => [l, symbols[i]]));

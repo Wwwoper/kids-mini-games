@@ -19,3 +19,19 @@ assert.equal(new Set(round.options.map((item) => item.id)).size, cfg.options);
 assert.equal(round.shown.length, 4);
 
 console.log('PASS pattern generator: accepts the minimum sufficient card pool');
+
+const invalidCases = [
+  { patterns: [], options: 3 },
+  { patterns: [{ p: '', shown: 4 }], options: 3 },
+  { patterns: [{ p: 'ABCD', shown: 4 }], options: 3 },
+  { patterns: [{ p: 'AB', shown: 0 }], options: 3 },
+  { patterns: [{ p: 'AB', shown: 2.5 }], options: 3 },
+  { patterns: [{ p: 'AB', shown: 4 }], options: 1 },
+  { patterns: [{ p: 'AB', shown: 4 }], options: 4 }
+];
+for (const invalidCfg of invalidCases) {
+  assert.equal(makeRound(cards, invalidCfg), null, `invalid config should return null: ${JSON.stringify(invalidCfg)}`);
+}
+assert.equal(makeRound(cards, null), null, 'missing config should return null');
+assert.equal(makeRound(null, cfg), null, 'missing card pool should return null');
+console.log('PASS pattern generator: rejects malformed configurations safely');
