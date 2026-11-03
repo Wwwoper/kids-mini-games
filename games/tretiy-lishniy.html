@@ -130,7 +130,10 @@ async function init() {
     onChange: () => { firstRound = true; lastIdx = -1; progress.levelChanged(); newRound(); }
   });
   progress.attach(levelSwitch);
-  nextBtn.addEventListener('click', newRound);
+  nextBtn.addEventListener('click', () => {
+    newRound();
+    cardsEl.querySelector('button')?.focus();
+  });
   newRound();
 }
 

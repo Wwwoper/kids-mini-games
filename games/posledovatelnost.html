@@ -154,7 +154,10 @@ async function init() {
     onChange: () => { firstRound = true; progress.levelChanged(); newRound(); }
   });
   progress.attach(levelSwitch);
-  nextBtn.addEventListener('click', newRound);
+  nextBtn.addEventListener('click', () => {
+    newRound();
+    pileEl.querySelector('button')?.focus();
+  });
   newRound();
 }
 

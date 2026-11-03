@@ -166,10 +166,14 @@ async function init() {
     if (state.phase !== 'memorize') return;
     state.phase = 'answer';
     render();
+    optionsEl.querySelector('button')?.focus();
     sndHint();
     speak('Смотри вниз. Что пропало?');
   });
-  nextBtn.addEventListener('click', newRound);
+  nextBtn.addEventListener('click', () => {
+    newRound();
+    rememberBtn.focus();
+  });
   newRound();
 }
 

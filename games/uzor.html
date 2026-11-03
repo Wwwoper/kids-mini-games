@@ -121,7 +121,10 @@ async function init() {
     onChange: () => { firstRound = true; progress.levelChanged(); newRound(); }
   });
   progress.attach(levelSwitch);
-  nextBtn.addEventListener('click', newRound);
+  nextBtn.addEventListener('click', () => {
+    newRound();
+    optionsEl.querySelector('button')?.focus();
+  });
   newRound();
 }
 
