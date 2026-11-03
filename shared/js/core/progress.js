@@ -20,5 +20,9 @@ export function resetProgress() {
   const fresh = emptyProgress();
   fresh.adaptive = loadProgress().adaptive;
   saveProgress(fresh);
+  // Сообщаем игровым модулям, что отложенные награды нужно отменить.
+  if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+    window.dispatchEvent(new Event('kmg:progress-reset'));
+  }
   return fresh;
 }

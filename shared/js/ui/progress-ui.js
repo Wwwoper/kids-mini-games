@@ -14,6 +14,14 @@ const STICKERS = ['🦄', '🐯', '🐼', '🐸', '🦁', '🐙', '🦋', '🐞'
 export function createGameProgress({ gameId, title, host }) {
   let levelSwitch = null;
   let session = 0;
+  let rewardTimer = null;
+  const cancelPendingReward = () => {
+    if (rewardTimer !== null) {
+      clearTimeout(rewardTimer);
+      rewardTimer = null;
+    }
+  };
+  window.addEventListener('kmg:progress-reset', cancelPendingReward);
   const banner = createEl('div', { className: 'suggest', attrs: { role: 'status' } });
   banner.hidden = true;
   host.append(banner);
@@ -55,7 +63,9 @@ export function createGameProgress({ gameId, title, host }) {
     saveProgress(state);
     session += 1;
     if (session % ROUNDS_PER_REWARD === 0) {
-      setTimeout(() => {
+      cancelPendingReward();
+      rewardTimer = setTimeout(() => {
+        rewardTimer = null;
         const fresh = loadProgress();
         const emoji = STICKERS[Math.floor(Math.random() * STICKERS.length)];
         recordStar(fresh, dateKey(), emoji);
