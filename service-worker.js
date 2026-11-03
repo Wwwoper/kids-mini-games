@@ -1,5 +1,5 @@
 // Поднимайте VERSION при каждом релизе: старый кэш будет удалён автоматически.
-const VERSION = 'v0.7.0';
+const VERSION = 'v0.8.0';
 const CACHE = `kmg-${VERSION}`;
 const ASSETS = [
   './',
@@ -86,18 +86,18 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
-  event.respondWith(
-    caches.match(request, { ignoreSearch: true }).then((cached) => {
-      const network = fetch(request)
-        .then((response) => {
-          if (response && response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE).then((cache) => cache.put(request, copy));
-          }
-          return response;
-        })
-        .catch(() => cached || (request.mode === 'navigate' ? caches.match('index.html') : undefined));
-      return cached || network;
+  const cachedPromise = caches.match(request, { ignoreSearch: true });
+  const networkPromise = cachedPromise.then((cached) => fetch(request)
+    .then((response) => {
+      if (!response || !response.ok) return response;
+      const copy = response.clone();
+      return caches.open(CACHE)
+        .then((cache) => cache.put(request, copy))
+        .then(() => response);
     })
-  );
+    .catch(() => cached || (request.mode === 'navigate' ? caches.match('index.html') : undefined)));
+
+  // Продлеваем жизнь worker до завершения запроса и записи обновлённого ответа в кэш.
+  event.waitUntil(networkPromise.then(() => undefined));
+  event.respondWith(cachedPromise.then((cached) => cached || networkPromise));
 });
