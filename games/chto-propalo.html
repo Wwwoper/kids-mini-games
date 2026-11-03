@@ -27,7 +27,7 @@
   <div class="pointer" id="pointer" hidden aria-hidden="true">⬇</div>
   <section class="answers" id="answersBlock" hidden aria-labelledby="answersTitle">
     <p class="answers-title" id="answersTitle"><span class="arrow" aria-hidden="true">👇</span> Что пропало? Выбери здесь</p>
-    <div class="options" id="options" aria-label="Варианты ответа"></div>
+    <div class="options answer-options" id="options" aria-label="Варианты ответа"></div>
   </section>
   <button type="button" class="button" id="remember" style="margin-top:16px" hidden>👀 Запомнил!</button>
   <button type="button" class="button orange next" id="next" hidden>🔄 Ещё</button>
@@ -102,7 +102,7 @@ function render() {
   void answersBlk.offsetWidth;
   answersBlk.hidden = false;
   pointer.hidden = false;
-  optionsEl.style.gridTemplateColumns = `repeat(${L.optCols},minmax(0,1fr))`;
+  optionsEl.dataset.count = String(L.optCols);
   optionsEl.replaceChildren(...state.options.map((opt) => {
     const btn = createCard(opt, { tag: 'button', base: 'opt', onClick: choose });
     if (state.phase === 'success') {
