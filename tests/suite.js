@@ -1,6 +1,6 @@
 import { POOL, POOL_LIST } from '../shared/js/content/cards.js';
 import { validateRound } from '../shared/js/content/loader.js';
-import { buildRound } from '../shared/js/logic/tretiy.js';
+import { buildRound, pickRound } from '../shared/js/logic/tretiy.js';
 import { makeRound as makeMissing } from '../shared/js/logic/missing.js';
 import { makeRound as makeAppeared } from '../shared/js/logic/appeared.js';
 import { makeRound as makeCount } from '../shared/js/logic/count.js';
@@ -57,6 +57,13 @@ export function runSuite({ rounds, memory, skolko, uzor, posledovatelnost, clean
   }
 
   // ---- Третий лишний
+  test('Третий лишний', 'pickRound завершает выбор при повторе предыдущего индекса', () => {
+    const items = ['a', 'b', 'c'];
+    const picked = pickRound(items, 0, () => 0);
+    assert(picked.idx === 1 && picked.round === 'b', 'не выбран следующий индекс');
+    assert(pickRound(['only'], 0, () => 0).round === 'only', 'единственный раунд недоступен');
+    assert(pickRound([], -1, () => 0) === null, 'пустой список должен вернуть null');
+  });
   test('Третий лишний', 'во всех уровнях есть раунды', () => {
     LEVEL_IDS.forEach((lv) => assert(Array.isArray(rounds[lv]) && rounds[lv].length > 0, `пустой уровень ${lv}`));
   });

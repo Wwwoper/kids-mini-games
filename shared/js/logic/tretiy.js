@@ -1,10 +1,9 @@
 import { shuffle } from '../core/rng.js';
 
 export function pickRound(rounds, lastIdx = -1, rnd = Math.random) {
-  let idx;
-  do {
-    idx = Math.floor(rnd() * rounds.length);
-  } while (rounds.length > 1 && idx === lastIdx);
+  if (!rounds.length) return null;
+  let idx = Math.floor(rnd() * rounds.length);
+  if (rounds.length > 1 && idx === lastIdx) idx = (idx + 1) % rounds.length;
   return { idx, round: rounds[idx] };
 }
 
