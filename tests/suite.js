@@ -313,6 +313,14 @@ export function runSuite({ rounds, memory, skolko, uzor, posledovatelnost, clean
     assert(s.days['2026-10-02'].rounds === 1 && s.days['2026-10-02'].stars === 1, 'счётчики дня');
     assert(totalStars(s) === 1 && s.stickers.length === 1, 'наклейки');
   });
+  test('Прогресс', 'ошибки с именами свойств прототипа считаются корректно', () => {
+    const s = emptyProgress();
+    recordAnswer(s, 'a', false, 'constructor', '2026-10-01', 'A');
+    recordAnswer(s, 'a', false, 'toString', '2026-10-01', 'A');
+    const errors = topErrors(s, 3);
+    assert(errors.length === 2, `ожидалось 2 ошибки, получено ${errors.length}`);
+    assert(errors.every((item) => item.count === 1), 'счётчик ошибки искажён прототипом');
+  });
   test('Прогресс', 'топ-3 ошибок отсортирован по частоте', () => {
     const s = emptyProgress();
     [['a', 'один', 1], ['a', 'два', 3], ['b', 'три', 2], ['b', 'четыре', 5]].forEach(([g, label, n]) => {

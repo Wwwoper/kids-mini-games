@@ -79,7 +79,8 @@ export function recordAnswer(state, gameId, correct, errorKey, day, title = '') 
     g.correct += 1;
   } else if (errorKey && String(errorKey) !== '__proto__') {
     const key = String(errorKey).slice(0, 80);
-    g.errors[key] = (g.errors[key] || 0) + 1;
+    const previous = Object.hasOwn(g.errors, key) ? g.errors[key] : 0;
+    g.errors[key] = previous + 1;
     const keys = Object.keys(g.errors);
     if (keys.length > MAX_ERRORS) {
       keys.sort((a, b) => g.errors[a] - g.errors[b]);
