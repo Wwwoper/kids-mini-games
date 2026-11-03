@@ -22,8 +22,11 @@ export function validateSequence(seq) {
 
 // cfg: { steps: n }. Берёт n подряд идущих шагов и перемешивает так, чтобы порядок не совпал.
 export function makeRound(sequences, cfg) {
+  if (!Array.isArray(sequences) || !cfg || !Number.isInteger(cfg.steps) || cfg.steps < 2) return null;
   const n = cfg.steps;
-  const usable = sequences.filter((s) => s.steps.length >= n);
+  const usable = sequences.filter((s) => (
+    validateSequence(s).length === 0 && s.steps.length >= n
+  ));
   if (!usable.length) return null;
   const seq = usable[Math.floor(Math.random() * usable.length)];
   const start = Math.floor(Math.random() * (seq.steps.length - n + 1));
