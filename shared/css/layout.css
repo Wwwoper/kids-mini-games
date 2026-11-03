@@ -71,7 +71,22 @@
   width: min(100%, 440px);
   margin: 0 auto;
 }
+.count-options[data-count="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.count-options[data-count="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .answers .options { width: 100%; }
+
+@media (max-width: 480px) {
+  .count-options[data-count] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: min(100%, 320px);
+  }
+  .count-options[data-count="3"] .opt:last-child {
+    grid-column: 1 / -1;
+    width: calc(50% - 6px);
+    justify-self: center;
+  }
+}
 
 @keyframes answersIn {
   0% { transform: translateY(12px) scale(.96); opacity: 0; }

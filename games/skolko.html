@@ -24,7 +24,7 @@
   <p class="level-hint" id="levelHint"></p>
   <div class="status" id="status" role="status" aria-live="polite"></div>
   <div class="objects" id="prompt" aria-label="Задание"></div>
-  <div class="options" id="options" aria-label="Варианты ответа"></div>
+  <div class="options count-options" id="options" aria-label="Варианты ответа"></div>
   <button type="button" class="button orange next" id="next" hidden>🔄 Ещё</button>
   <div id="suggest"></div>
 </main>
@@ -64,6 +64,7 @@ function newRound() {
     return;
   }
   state = round;
+  optionsEl.dataset.count = String(round.options.length);
   const toDigit = round.mode === 'count-to-digit';
 
   if (toDigit) {
@@ -74,7 +75,6 @@ function newRound() {
     promptEl.replaceChildren(digit);
   }
 
-  optionsEl.style.gridTemplateColumns = `repeat(${round.options.length},minmax(0,1fr))`;
   optionsEl.replaceChildren(...round.options.map((n) => {
     const emoji = toDigit ? String(n) : round.item.emoji.repeat(n);
     const btn = createCard({ id: n, emoji, label: NUMBER_WORDS[n] }, { tag: 'button', base: 'opt', onClick: choose });
