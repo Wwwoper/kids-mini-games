@@ -39,7 +39,7 @@ qs('#todayLine').textContent = today.stars > 0
   : 'Сегодня пока нет наклеек. Поиграй — и они появятся!';
 
 const stickers = state.stickers.slice(-60);
-qs('#stickers').replaceChildren(...stickers.map((s) => createEl('span', { text: s.e, attrs: { role: 'img', 'aria-label': 'наклейка' } })));
+qs('#stickers').replaceChildren(...stickers.map((s) => createEl('span', { text: s.e, attrs: { role: 'img', 'aria-label': `Наклейка ${s.e}` } })));
 
 const dateLabel = (key) => new Date(key + 'T00:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
 const dayKeys = Object.keys(state.days).sort().reverse().slice(0, 14);
