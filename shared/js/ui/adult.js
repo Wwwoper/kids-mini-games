@@ -94,14 +94,20 @@ function panel(modal) {
     panel(modal);
   });
 
+  const closeBtn = createEl('button', {
+    className: 'button', text: 'Закрыть',
+    attrs: { type: 'button' }, on: { click: modal.close }
+  });
   modal.box.replaceChildren(
     createEl('h2', { text: 'Для взрослых' }),
     createEl('p', { text: `Раундов сегодня: ${today.rounds}. Наклеек сегодня: ${today.stars}.` }),
     createEl('h3', { text: 'Верные ответы по играм' }), table,
     createEl('h3', { text: 'Частые ошибки' }), errList,
     createEl('label', { className: 'adaptive-label', attrs: { for: 'adaptiveToggle' } }, adaptive, ' Подсказывать смену уровня'),
-    createEl('div', { className: 'modal-actions' }, resetBtn,
-      createEl('button', { className: 'button', text: 'Закрыть', attrs: { type: 'button' }, on: { click: modal.close } })));
+    createEl('div', { className: 'modal-actions' }, resetBtn, closeBtn));
+  // После замены формы проверки фокус остаётся на удалённом input.
+  // Переводим его в доступный элемент новой панели.
+  closeBtn.focus();
 }
 
 export function mountAdult(openBtn) {
