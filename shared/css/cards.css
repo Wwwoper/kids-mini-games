@@ -88,6 +88,27 @@ button:disabled { cursor: default; }
 }
 
 /* Выбор персонажа в игре «Котик и щенок» */
+.player-choice-panel {
+  margin: 14px auto 16px;
+  padding: 14px 12px 10px;
+  width: min(100%, 440px);
+  border: 3px solid #7bc47f;
+  border-radius: 22px;
+  background: #f1fbe9;
+  box-shadow: 0 5px 0 #c6e3b6;
+  text-align: center;
+}
+.player-choice-title {
+  margin: 0;
+  color: #2f6b3a;
+  font-size: clamp(18px, 5vw, 22px);
+}
+.player-choice-instruction {
+  margin: 5px 0 12px;
+  color: #3f6b45;
+  font-size: 14px;
+}
+.player-choice { margin-bottom: 0; }
 .player-choice button { display: inline-flex; align-items: center; gap: 8px; }
-.player-choice button img { width: 34px; height: 34px; object-fit: contain; }
+.player-choice button img { width: 42px; height: 42px; object-fit: contain; }
 .player-choice button[aria-pressed="true"] { background: var(--accent); color: #fff; }

@@ -23,14 +23,18 @@
     <button class="button secondary" type="button" id="together" aria-pressed="true">Играем вдвоём</button>
     <button class="button secondary" type="button" id="computer" aria-pressed="false">С компьютером</button>
   </div>
-  <div class="mode player-choice" id="playerChoice" role="group" aria-label="За кого играть" hidden>
-    <button class="button secondary" type="button" id="playCat" aria-pressed="true">
-      <img src="../shared/img/ttt-cat.webp" alt="" aria-hidden="true"> За котика
-    </button>
-    <button class="button secondary" type="button" id="playPuppy" aria-pressed="false">
-      <img src="../shared/img/ttt-puppy.webp" alt="" aria-hidden="true"> За щенка
-    </button>
-  </div>
+  <section class="player-choice-panel" id="playerChoice" aria-labelledby="playerChoiceTitle" hidden>
+    <h2 class="player-choice-title" id="playerChoiceTitle">Выбери, за кого играть</h2>
+    <p class="player-choice-instruction">Нажми на котика или щенка</p>
+    <div class="mode player-choice" role="group" aria-label="Выбор персонажа">
+      <button class="button secondary" type="button" id="playCat" aria-pressed="true">
+        <img src="../shared/img/ttt-cat.webp" alt="" aria-hidden="true"> За котика
+      </button>
+      <button class="button secondary" type="button" id="playPuppy" aria-pressed="false">
+        <img src="../shared/img/ttt-puppy.webp" alt="" aria-hidden="true"> За щенка
+      </button>
+    </div>
+  </section>
   <div class="level" id="level" role="group" aria-label="Сложность" hidden></div>
   <p class="level-hint" id="levelHint"></p>
   <div class="status" id="status" role="status" aria-live="polite"></div>
@@ -50,8 +54,8 @@ import { bootGame } from '../shared/js/ui/boot.js';
 import { createGameProgress } from '../shared/js/ui/progress-ui.js';
 
 const CHARACTERS = {
-  cat: { src: '../shared/img/ttt-cat.webp', alt: 'Котик', name: 'котик' },
-  puppy: { src: '../shared/img/ttt-puppy.webp', alt: 'Щенок', name: 'щенок' }
+  cat: { src: '../shared/img/ttt-cat.webp', alt: 'Котик', name: 'котик', object: 'котика' },
+  puppy: { src: '../shared/img/ttt-puppy.webp', alt: 'Щенок', name: 'щенок', object: 'щенка' }
 };
 const [boardEl, statusEl, hintEl, levelHintEl, levelGroup, togetherBtn, computerBtn,
   playerChoice, playCatBtn, playPuppyBtn] =
@@ -165,9 +169,15 @@ function updateUI() {
   levelHintEl.textContent = vsComputer
     ? texts.levelHint.replaceAll('Щенок', opponentTitle).replaceAll('щенка', opponent)
     : texts.levelHint;
-  hintEl.textContent = vsComputer
-    ? texts.hint.replace('котиком', characterFor('X').name).replace('котик', characterFor('X').name)
-    : texts.hint;
+  if (!vsComputer) {
+    hintEl.textContent = texts.hint;
+    return;
+  }
+  const human = characterFor('X');
+  hintEl.textContent = texts.hint.replace(
+    /Ты играешь котиком\.?/,
+    `Ты играешь за ${human.object}.`
+  );
 }
 
 async function init() {
