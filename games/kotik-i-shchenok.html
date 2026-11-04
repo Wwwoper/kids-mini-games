@@ -42,7 +42,10 @@ import { LEVEL_LABELS, mountLevelSwitch } from '../shared/js/ui/level-switch.js'
 import { bootGame } from '../shared/js/ui/boot.js';
 import { createGameProgress } from '../shared/js/ui/progress-ui.js';
 
-const SYMBOLS = { X: '🐱', O: '🐶' };
+const SYMBOLS = {
+  X: { src: '../shared/img/ttt-cat.webp', alt: 'Котик', emoji: '🐱' },
+  O: { src: '../shared/img/ttt-puppy.webp', alt: 'Щенок', emoji: '🐶' }
+};
 const [boardEl, statusEl, hintEl, levelHintEl, levelGroup, togetherBtn, computerBtn] =
   ['#board', '#status', '#hint', '#levelHint', '#level', '#together', '#computer'].map((id) => qs(id));
 const progress = createGameProgress({ gameId: 'kotik-i-shchenok', title: 'Котик и щенок', host: qs('#suggest') });
@@ -63,12 +66,20 @@ function winMessages(winner) {
   const text = vsComputer
     ? (cat ? 'Победа! Молодец!' : 'Щенок победил. Попробуй ещё раз')
     : `Победил ${cat ? 'котик' : 'щенок'}! Молодец!`;
-  return { status: `${SYMBOLS[winner]} ${text}`, voice: text, good: cat || !vsComputer };
+  return { status: `${SYMBOLS[winner].emoji} ${text}`, voice: text, good: cat || !vsComputer };
 }
 
 function render() {
   cells.forEach((cell, i) => {
-    cell.textContent = SYMBOLS[board[i]] || '';
+    const symbol = SYMBOLS[board[i]];
+    if (symbol) {
+      cell.replaceChildren(createEl('img', {
+        attrs: {
+          src: symbol.src, alt: symbol.alt, draggable: 'false',
+          style: 'display:block;width:82%;height:82%;object-fit:contain;pointer-events:none;user-select:none'
+        }
+      }));
+    } else cell.replaceChildren();
     cell.disabled = Boolean(board[i]) || finished || (vsComputer && turn === 'O');
     cell.classList.toggle('win', Boolean(winningLine) && winningLine.includes(i));
     const who = { X: 'котик', O: 'щенок' }[board[i]] || 'пусто';
@@ -77,8 +88,8 @@ function render() {
   const end = result(board);
   statusEl.textContent = end?.winner ? winMessages(end.winner).status
     : end ? '🤝 Ничья! Сыграем ещё?'
-      : vsComputer && turn === 'O' ? '🐶 Щенок думает...'
-        : `Ходит ${SYMBOLS[turn]} ${turn === 'X' ? 'котик' : 'щенок'}`;
+      : vsComputer && turn === 'O' ? `${SYMBOLS.O.emoji} Щенок думает...`
+        : `Ходит ${SYMBOLS[turn].emoji} ${turn === 'X' ? 'котик' : 'щенок'}`;
 }
 
 function reset() {
