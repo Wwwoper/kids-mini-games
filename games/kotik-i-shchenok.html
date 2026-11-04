@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#fff6df">
 <title>Котик и щенок</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48'%3E%F0%9F%90%B1%3C/text%3E%3C/svg%3E">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../shared/img/icon-192.png">
 <link rel="stylesheet" href="../shared/css/base.css">
@@ -18,11 +17,19 @@
     <a class="button secondary" href="../index.html">← Все игры</a>
     <div class="toggles" id="toggles"></div>
   </nav>
-  <h1>🐱 Котик и щенок 🐶</h1>
+  <h1>Котик и щенок</h1>
   <p class="subtitle">Собери три картинки в ряд!</p>
   <div class="mode" role="group" aria-label="Режим игры">
     <button class="button secondary" type="button" id="together" aria-pressed="true">Играем вдвоём</button>
     <button class="button secondary" type="button" id="computer" aria-pressed="false">С компьютером</button>
+  </div>
+  <div class="mode player-choice" id="playerChoice" role="group" aria-label="За кого играть" hidden>
+    <button class="button secondary" type="button" id="playCat" aria-pressed="true">
+      <img src="../shared/img/ttt-cat.webp" alt="" aria-hidden="true"> За котика
+    </button>
+    <button class="button secondary" type="button" id="playPuppy" aria-pressed="false">
+      <img src="../shared/img/ttt-puppy.webp" alt="" aria-hidden="true"> За щенка
+    </button>
   </div>
   <div class="level" id="level" role="group" aria-label="Сложность" hidden></div>
   <p class="level-hint" id="levelHint"></p>
@@ -42,12 +49,14 @@ import { LEVEL_LABELS, mountLevelSwitch } from '../shared/js/ui/level-switch.js'
 import { bootGame } from '../shared/js/ui/boot.js';
 import { createGameProgress } from '../shared/js/ui/progress-ui.js';
 
-const SYMBOLS = {
-  X: { src: '../shared/img/ttt-cat.webp', alt: 'Котик', emoji: '🐱' },
-  O: { src: '../shared/img/ttt-puppy.webp', alt: 'Щенок', emoji: '🐶' }
+const CHARACTERS = {
+  cat: { src: '../shared/img/ttt-cat.webp', alt: 'Котик', name: 'котик' },
+  puppy: { src: '../shared/img/ttt-puppy.webp', alt: 'Щенок', name: 'щенок' }
 };
-const [boardEl, statusEl, hintEl, levelHintEl, levelGroup, togetherBtn, computerBtn] =
-  ['#board', '#status', '#hint', '#levelHint', '#level', '#together', '#computer'].map((id) => qs(id));
+const [boardEl, statusEl, hintEl, levelHintEl, levelGroup, togetherBtn, computerBtn,
+  playerChoice, playCatBtn, playPuppyBtn] =
+  ['#board', '#status', '#hint', '#levelHint', '#level', '#together', '#computer',
+    '#playerChoice', '#playCat', '#playPuppy'].map((id) => qs(id));
 const progress = createGameProgress({ gameId: 'kotik-i-shchenok', title: 'Котик и щенок', host: qs('#suggest') });
 
 let cfgAll = null;
@@ -56,22 +65,31 @@ let board = [];
 let turn = 'X';
 let finished = false;
 let vsComputer = false;
+let playerCharacter = 'cat';
 let winningLine = null;
 let timer = null;
 let cells = [];
 
 const levelCfg = () => cfgAll[levelSwitch.get()];
+function characterFor(side) {
+  if (!vsComputer) return side === 'X' ? CHARACTERS.cat : CHARACTERS.puppy;
+  const human = CHARACTERS[playerCharacter];
+  const computer = playerCharacter === 'cat' ? CHARACTERS.puppy : CHARACTERS.cat;
+  return side === 'X' ? human : computer;
+}
+
 function winMessages(winner) {
-  const cat = winner === 'X';
+  const humanWon = winner === 'X';
+  const winnerName = characterFor(winner).name;
   const text = vsComputer
-    ? (cat ? 'Победа! Молодец!' : 'Щенок победил. Попробуй ещё раз')
-    : `Победил ${cat ? 'котик' : 'щенок'}! Молодец!`;
-  return { status: `${SYMBOLS[winner].emoji} ${text}`, voice: text, good: cat || !vsComputer };
+    ? (humanWon ? 'Победа! Молодец!' : `${winnerName[0].toUpperCase()}${winnerName.slice(1)} победил. Попробуй ещё раз`)
+    : `Победил ${winnerName}! Молодец!`;
+  return { status: text, voice: text, good: humanWon || !vsComputer };
 }
 
 function render() {
   cells.forEach((cell, i) => {
-    const symbol = SYMBOLS[board[i]];
+    const symbol = board[i] ? characterFor(board[i]) : null;
     if (symbol) {
       cell.replaceChildren(createEl('img', {
         attrs: {
@@ -87,9 +105,9 @@ function render() {
   });
   const end = result(board);
   statusEl.textContent = end?.winner ? winMessages(end.winner).status
-    : end ? '🤝 Ничья! Сыграем ещё?'
-      : vsComputer && turn === 'O' ? `${SYMBOLS.O.emoji} Щенок думает...`
-        : `Ходит ${SYMBOLS[turn].emoji} ${turn === 'X' ? 'котик' : 'щенок'}`;
+    : end ? 'Ничья! Сыграем ещё?'
+      : vsComputer && turn === 'O' ? `${characterFor('O').name[0].toUpperCase()}${characterFor('O').name.slice(1)} думает...`
+        : `Ходит ${characterFor(turn).name}`;
 }
 
 function reset() {
@@ -99,7 +117,7 @@ function reset() {
   winningLine = null;
   turn = vsComputer && levelCfg().computerFirst ? 'O' : 'X';
   render();
-  speak(turn === 'O' ? 'Щенок ходит первым' : 'Ходит котик');
+  speak(turn === 'O' ? `${characterFor('O').name[0].toUpperCase()}${characterFor('O').name.slice(1)} ходит первым` : `Ходит ${characterFor('X').name}`);
   if (vsComputer && turn === 'O') timer = setTimeout(computerMove, 500);
 }
 
@@ -138,9 +156,18 @@ function updateUI() {
   togetherBtn.setAttribute('aria-pressed', String(!vsComputer));
   computerBtn.setAttribute('aria-pressed', String(vsComputer));
   levelGroup.hidden = !vsComputer;
+  playerChoice.hidden = !vsComputer;
+  playCatBtn.setAttribute('aria-pressed', String(playerCharacter === 'cat'));
+  playPuppyBtn.setAttribute('aria-pressed', String(playerCharacter === 'puppy'));
   const texts = vsComputer ? levelCfg() : cfgAll.together;
-  levelHintEl.textContent = texts.levelHint;
-  hintEl.textContent = texts.hint;
+  const opponent = characterFor('O').name;
+  const opponentTitle = `${opponent[0].toUpperCase()}${opponent.slice(1)}`;
+  levelHintEl.textContent = vsComputer
+    ? texts.levelHint.replaceAll('Щенок', opponentTitle).replaceAll('щенка', opponent)
+    : texts.levelHint;
+  hintEl.textContent = vsComputer
+    ? texts.hint.replace('котиком', characterFor('X').name).replace('котик', characterFor('X').name)
+    : texts.hint;
 }
 
 async function init() {
@@ -169,6 +196,14 @@ async function init() {
   progress.attach(levelSwitch);
   togetherBtn.addEventListener('click', () => { vsComputer = false; updateUI(); reset(); });
   computerBtn.addEventListener('click', () => { vsComputer = true; updateUI(); reset(); });
+  playCatBtn.addEventListener('click', () => {
+    if (playerCharacter === 'cat') return;
+    playerCharacter = 'cat'; updateUI(); reset();
+  });
+  playPuppyBtn.addEventListener('click', () => {
+    if (playerCharacter === 'puppy') return;
+    playerCharacter = 'puppy'; updateUI(); reset();
+  });
   qs('#restart').addEventListener('click', reset);
   updateUI();
   reset();

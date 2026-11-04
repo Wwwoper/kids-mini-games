@@ -86,3 +86,8 @@ button:disabled { cursor: default; }
   pointer-events: none;
   user-select: none;
 }
+
+/* Выбор персонажа в игре «Котик и щенок» */
+.player-choice button { display: inline-flex; align-items: center; gap: 8px; }
+.player-choice button img { width: 34px; height: 34px; object-fit: contain; }
+.player-choice button[aria-pressed="true"] { background: var(--accent); color: #fff; }
