@@ -48,9 +48,20 @@ export function bestMinimaxMove(b) {
   return moves[Math.floor(Math.random() * moves.length)];
 }
 
-// Простой уровень: выиграть, если можно; иначе заблокировать; иначе по приоритету клеток.
-export function easyMove(b) {
+// Простой уровень: иногда выбирает случайную свободную клетку,
+// иначе использует базовую тактику (выигрыш / блокировка / приоритет).
+export function easyMove(b, mistakeChance = 0, rnd = Math.random) {
   if (!b.some((cell) => !cell)) return null;
+  if (!Number.isFinite(mistakeChance) || mistakeChance < 0 || mistakeChance > 1
+    || typeof rnd !== 'function') return null;
+  const mistakeRoll = rnd();
+  if (!Number.isFinite(mistakeRoll) || mistakeRoll < 0 || mistakeRoll >= 1) return null;
+  if (mistakeRoll < mistakeChance) {
+    const free = b.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0);
+    const moveRoll = rnd();
+    if (!Number.isFinite(moveRoll) || moveRoll < 0 || moveRoll >= 1) return null;
+    return free[Math.floor(moveRoll * free.length)];
+  }
   for (const player of ['O', 'X']) {
     for (let i = 0; i < 9; i++) {
       if (b[i]) continue;
@@ -75,7 +86,7 @@ export function chooseComputerMove(board, cfg, rnd = Math.random) {
     || cfg.mistakeChance < 0 || cfg.mistakeChance > 1
     || typeof rnd !== 'function') return null;
   if (!board.some((cell) => !cell)) return null;
-  if (cfg.strategy === 'simple') return easyMove(board);
+  if (cfg.strategy === 'simple') return easyMove(board, cfg.mistakeChance, rnd);
 
   const mistakeRoll = rnd();
   if (!Number.isFinite(mistakeRoll) || mistakeRoll < 0 || mistakeRoll >= 1) return null;

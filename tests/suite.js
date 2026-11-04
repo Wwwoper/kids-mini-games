@@ -200,8 +200,8 @@ export function runSuite({ rounds, memory, skolko, uzor, posledovatelnost, clean
   });
   test('Котик и щенок', 'простой уровень выигрывает в один ход и блокирует', () => {
     const cfg = memory['tic-tac-toe'].easy;
-    assert(chooseComputerMove(['O', 'O', '', 'X', 'X', '', '', '', ''], cfg) === 2, 'не выиграл');
-    assert(chooseComputerMove(['X', 'X', '', '', 'O', '', '', '', ''], cfg) === 2, 'не заблокировал');
+    assert(chooseComputerMove(['O', 'O', '', 'X', 'X', '', '', '', ''], cfg, () => 0.9) === 2, 'не выиграл');
+    assert(chooseComputerMove(['X', 'X', '', '', 'O', '', '', '', ''], cfg, () => 0.9) === 2, 'не заблокировал');
   });
   test('Котик и щенок', 'компьютер не выбирает ход на заполненном поле', () => {
     const fullDraw = ['X', 'O', 'X', 'X', 'O', 'O', 'O', 'X', 'X'];
