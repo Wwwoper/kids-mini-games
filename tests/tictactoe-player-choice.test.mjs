@@ -18,8 +18,8 @@ test('tic-tac-toe: player can choose either character and images are used instea
 
 test('tic-tac-toe: character choice is presented as a separate child-friendly step', () => {
   assert.match(html, /class="player-choice-panel" id="playerChoice"/);
-  assert.match(html, /Выбери, за кого играть/);
-  assert.match(html, /Нажми на котика или щенка/);
+  assert.match(html, /За кого играешь\?/);
+  assert.doesNotMatch(html, /player-choice-instruction/);
 });
 
 test('tic-tac-toe: computer-mode hint uses correct accusative character forms', () => {
